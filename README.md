@@ -13,16 +13,18 @@ OpenBot; keputusan produk/peranan direkodkan oleh Luna (Desktop `.Mcore` memory)
 | Ujian keselamatan & QA | Strix review + probe RLS + `toolbox/check-access-control.ps1` (Gok) |
 | Penyelidikan & dokumentasi | `.Mcore` + docs (Gim, Luna) |
 
-## Jalankan lokal
+## Jalankan lokal — tanpa Docker (keputusan MoonWiRaja: tia tak gunakan Docker)
+
+Backend tak butuh Docker: guna projek Supabase **cloud** (free) sebagai pemaju DB:
 
 ```powershell
-# 1. Docker Desktop perlu jalan (WSL2 distro wajib untuk Linux engine)
-# 2. sekali sahaja
 npm install -g supabase
-supabase init        # hanya jika supabase/config.toml hilang (config ini sudah dalam repo)
-# 3. stack lokal
-supabase start          # Studio: http://127.0.0.1:54323  API: 54321  DB: 54322
-supabase db reset       # apply migrations + seed.sql
+$env:SUPABASE_ACCESS_TOKEN = "<token dari supabase.com/dashboard/account/tokens>"
+supabase link --project-ref <project_ref>
+supabase db push            # apply semua migration + seed ke projek awak
 ```
+
+Studio projek awak (Auth, Storage, SQL editor, tabel): `https://supabase.com/dashboard`.
+Frontend Next.js dan Flutter boleh jalan sepenuhnya di mesin ini tanpa apa-apa container.
 
 Butiran backend, skema, RLS, langkah bootstrap admin: [docs/backend.md](docs/backend.md).

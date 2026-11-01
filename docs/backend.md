@@ -4,15 +4,16 @@ Kesiliran akses guna model kanonik **Gok** (`supabase/migrations/20261102120000_
 dalam `toolbox/check-access-control.ps1` sebagai tolok). Tambahan Gos: realtime streaming + bootstrap
 admin pertama (`20261102130000`). Dos migrasi lama saya dikonsolidasi — tidak dua model skema.
 
-## Jalankan lokal
+## Jalankan projekt tanpa Docker (keputusan MoonWiRaja, 2026-11-02)
 
 ```powershell
-# Docker Desktop perlu jalan
-supabase init        # (sekali; config.toml dalam repo)
-supabase start       # Studio http://127.0.0.1:54323, API 54321, DB 54322
-supabase db reset    # apply semua migrations + seed
-supabase status      # connection string untuk psql / env
+npm install -g supabase
+$env:SUPABASE_ACCESS_TOKEN = "<token supabase.com/dashboard/account/tokens>"
+supabase link --project-ref <project_ref>   # projek Supabase cloud (free tier)
+supabase db push                             # apply migrations + seed ke projek
 ```
+
+Studio web (Auth, Storage, SQL editor): `https://supabase.com/dashboard/project/<ref>`.
 
 Kunci: `NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY` untuk klien; `SUPABASE_SERVICE_ROLE_KEY` hanya server
 (Lihat `.env.example`). `service_role` memintas RLS — kekunci di server.
@@ -46,7 +47,7 @@ Chat: nota `internal` hanya `it`+/`admin` (polisi + trigger). Audit: insert is s
 ## Bootstrap admin (sekali)
 
 ```sql
-select public.promote_first_admin('moonwiraja@example.com'); -- daftar user dulu
+select public.promote_first_admin('<email-awak>'); -- daftar user dulu (contoh alamat, bukan alamat sebenar)
 ```
 
 Selepas itu: `admin_set_role(target, role)` / `admin_set_active(target, active)` (admin sahaja),
@@ -59,11 +60,13 @@ menerima baris yang rol mereka boleh baca (RLS digunai per subscriber).
 
 ## CI
 
-`.github/workflows/supabase-ci.yml`: `supabase start` → `db reset` → `db lint` di pencerobohon.
+`.github/workflows/supabase-ci.yml` (tanpa Docker): gate statik akses (PowerShell) + dry-run
+`db push` ke projek Supabase bila secret repo `SUPABASE_ACCESS_TOKEN`/`SUPABASE_PROJECT_REF` ada.
 
 ## Baki (akan datang / perlu keputusan)
 
-1. Email provider (webhook SMTP/IMAP) - keputusan MoonWiRaja diperlukan.
-2. TURN server (coturn) atau LiveKit untuk panggilan di jalur non-NAT; sip dashbor kontroli.
-3. Perintah permission per tindakan dipapar UI (matrix diumpuk docs; diaadmins) - bermula dengan Kid.
-4. Review keselamatan Gok: audit + probe kebocoran RLS (toolbox harness sebagai pintu).
+1. Projek Supabase cloud untuk pembangunan (tiada Docker) — perlu akaun MoonWiRaja atau pilihan.
+2. Email provider (webhook SMTP/IMAP) — keputusan MoonWiRaja diperlukan.
+3. TURN server (coturn) atau LiveKit untuk panggilan melintasi NAT; keputusan deploy.
+4. Matriks permission per tindakan yang boleh diurus admin di UI; start dengan Kid + Gok.
+5. Review keselamatan Gok: audit + probe kebocoran RLS (toolbox harness sebagai pintu).

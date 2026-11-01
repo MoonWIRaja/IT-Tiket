@@ -1,16 +1,31 @@
-name: supabase-ci
+name: backend-ci
 
-# Backend gate: boot the local stack and verify migrations + seed apply cleanly.
+# No Docker policy (MoonWiRaja, 2026-11-02): the pipeline must not need docker.
+# DB change gate: static access-control checks + (when secrets exist) a
+# dry-run migration push to the linked Supabase project. Supabase hosted =
+# Postgres + Auth + Storage + Realtime, no local docker involved.
+
 on:
   push:
     branches: [main]
     paths:
       - 'supabase/**'
-      - '.github/workflows/supabase-ci.yml'
+      - 'toolbox/**'
+      - 'docs/**'
+      - '.github/workflows/*.yml'
   pull_request:
 
 jobs:
-  backend:
+  static-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Access-control static gate (Gok)
+        shell: pwsh
+        run: ./toolbox/check-access-control.ps1
+
+  db-push-dry-run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,15 +34,15 @@ jobs:
         with:
           version: latest
 
-      - name: Start local Supabase stack
-        run: supabase start
-
-      - name: Verify migrations + seed
-        run: supabase db reset
-
-      - name: Lint database
-        run: supabase db lint --level warning
-
-      - name: Generate DB types for the JS web client
-        run: supabase gen types typescript --local > types-db.d.ts
-        continue-on-error: true # advisory until web app lands; fails loudly when Kid wires it up
+      - name: Link project + dry-run migrations (needs repo secrets)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_PROJECT_REF" ]; then
+            echo "Skipping: SUPABASE_ACCESS_TOKEN / SUPABASE_PROJECT_REF not set yet."
+            exit 0
+          fi
+          supabase link --project-ref "$SUPABASE_PROJECT_REF"
+          supabase db push --dry-run
+          supabase migration list
