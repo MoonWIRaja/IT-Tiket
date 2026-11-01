@@ -1,0 +1,33 @@
+name: supabase-ci
+
+# Backend gate: boot the local stack and verify migrations + seed apply cleanly.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/**'
+      - '.github/workflows/supabase-ci.yml'
+  pull_request:
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase stack
+        run: supabase start
+
+      - name: Verify migrations + seed
+        run: supabase db reset
+
+      - name: Lint database
+        run: supabase db lint --level warning
+
+      - name: Generate DB types for the JS web client
+        run: supabase gen types typescript --local > types-db.d.ts
+        continue-on-error: true # advisory until web app lands; fails loudly when Kid wires it up

@@ -1,0 +1,176 @@
+﻿{
+    "schema_version":  2,
+    "max_task_suggestions":  5,
+    "rules":  [
+                  {
+                      "folder":  "agent-core",
+                      "pattern":  "agent-core",
+                      "always":  true
+                  },
+                  {
+                      "folder":  "design-taste-frontend",
+                      "pattern":  "frontend|landing|portfolio|redesign|website|web design|visual design|ui design|reka bentuk|laman web|antaramuka|antara muka",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "design-motion-principles",
+                      "pattern":  "motion|animation|animate|transition|microinteraction|micro-interaction|hover|scroll reveal|animasi|gerakan|pergerakan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Work-Flow",
+                      "pattern":  "build|implement|fix|code|project|plan|workflow|initiative|spec|story|ticket|acceptance|retrospective|course correction|bina|baiki|projek|rancang|aliran kerja|inisiatif|spesifikasi|cerita|tiket|keperluan|semakan|retrospektif",
+                      "always":  true
+                  },
+                  {
+                      "folder":  "BMad-Method",
+                      "pattern":  "bmad|epic|specification|spec|sprint|requirement|prd|product brief|prfaq|brainstorm|discovery|architecture|ux design|ticket|story|retrospective|correct.course|keperluan|inisiatif|spesifikasi|reka bentuk seni bina|cerita|tiket|retrospektif",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Agency-Roles",
+                      "pattern":  "role|specialist|expert|pakar|peranan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "AutoGPT-Patterns",
+                      "pattern":  "automat|schedule|recurring|jadual|berulang|autogpt",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Context-Mode",
+                      "pattern":  "context|large output|log|konteks|ringkas|banyak fail",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "TeamAI-Practices",
+                      "pattern":  "team|member|sync|github|pasukan|ahli|device|peranti",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Archify-Diagrams",
+                      "pattern":  "diagram|architecture|flowchart|sequence|rajah|seni bina",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Anti-Slop",
+                      "pattern":  "copy|writing|text|content|review|audit|teks|tulis|semak|kandungan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "AI-Memory-Handoff",
+                      "pattern":  "handoff|switch|resume|sambung|tukar|device|peranti",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Ponytail",
+                      "pattern":  "ponytail",
+                      "always":  true
+                  },
+                  {
+                      "folder":  "Caveman",
+                      "pattern":  "caveman",
+                      "always":  true
+                  },
+                  {
+                      "folder":  "RTK",
+                      "pattern":  "rtk|terminal|shell|command|output|arahan",
+                      "always":  true
+                  },
+                  {
+                      "folder":  "Strix-Security",
+                      "pattern":  "strix|secur|vulnerab|pentest|auth|login|encrypt|injection|keselamatan|kelemahan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Prompt-Audit",
+                      "pattern":  "system prompt|agent rules|prompt audit|rules|peraturan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Book-To-Skill",
+                      "pattern":  "book|pdf|document.*skill|buku|dokumen.*skill",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Hallmark-Design",
+                      "pattern":  "hallmark|redesign|landing|interface|antaramuka|reka bentuk",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Vox-Director",
+                      "pattern":  "video|storyboard|narrat|ffmpeg|vox|naratif",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Self-Improvement-Research",
+                      "pattern":  "improv|benchmark|evaluat|optimiz|penambahbaikan|ukur|penilaian",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "UI-UX-Pro-Max",
+                      "pattern":  "\\bui\\b|\\bux\\b|accessib|design system|typograph|responsive|aksesibiliti",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Prompt-Master",
+                      "pattern":  "prompt.*(write|create|improve)|write.*prompt|tulis.*prompt|buat.*prompt",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Skill-Recommender",
+                      "pattern":  "skill|capabilit|tool missing|keupayaan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Echo-Memory-Recall",
+                      "pattern":  "recall|remember|previous|history|ingat|sejarah|dahulu",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Memory-Compaction-System",
+                      "pattern":  "compact|summari.*memory|padat.*memori",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Memory-Consolidation-System",
+                      "pattern":  "migrat|old memory|memori lama|pindah.*memori",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Topic-Diary-System",
+                      "pattern":  "topic|topik|knowledge|pengetahuan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "Save-Diary-System",
+                      "pattern":  "diary|diari",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "rea",
+                      "pattern":  "reverse.engineer|decompile|binary|firmware|apk|asar|electron app behavior|reka semula|nyahkompil",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "experimental-design",
+                      "pattern":  "experiment|trial design|randomiz|blocking|stratification|factorial|design of experiments|kajian eksperimen|reka bentuk kajian",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "literature-review",
+                      "pattern":  "literature review|systematic review|scoping review|scholarly search|citation|tinjauan literatur|ulasan kajian|rujukan ilmiah",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "scientific-writing",
+                      "pattern":  "scientific manuscript|scientific writing|journal submission|research report|manuscript|manuskrip|tulis artikel saintifik|laporan penyelidikan",
+                      "always":  false
+                  },
+                  {
+                      "folder":  "securing-agentic-ai-tool-invocation",
+                      "pattern":  "agent tool|tool invocation|tool security|prompt injection|least privilege agent|keselamatan alat ejen|panggilan alat",
+                      "always":  false
+                  }
+              ]
+}

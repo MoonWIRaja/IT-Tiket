@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "rtk": {
+    "version": "0.49.0",
+    "url": "https://github.com/rtk-ai/rtk/releases/download/v0.49.0/rtk-x86_64-pc-windows-msvc.zip",
+    "sha256": "cb971046598f0e8bd51f6c27780fcdd2c39a4c459a811bd95b0d77ba8c0d7c9f",
+    "binary": "rtk.exe"
+  },
+  "uv": {
+    "version": "0.12.15",
+    "url": "https://github.com/astral-sh/uv/releases/download/0.12.15/uv-x86_64-pc-windows-msvc.zip",
+    "sha256": "477bd99a84e34891f2bd4c9152ddeb74e971accccbc59c0f0301f11f08a32d46",
+    "binary": "uv.exe"
+  },
+  "skillspector": {
+    "commit": "92e8e650c32ef81fe571a0d3147f32916f700e8f",
+    "url": "https://github.com/NVIDIA/SkillSpector/archive/92e8e650c32ef81fe571a0d3147f32916f700e8f.zip"
+  }
+}

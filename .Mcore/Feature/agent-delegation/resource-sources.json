@@ -1,0 +1,144 @@
+{
+  "schema_version": 2,
+  "checked_at": "2026-10-26T02:08:00+00:00",
+  "sources": [
+    {
+      "repository": "rtk-ai/rtk",
+      "url": "https://github.com/rtk-ai/rtk",
+      "license_detected": "Apache-2.0 / BUSL-1.1",
+      "integration": "Tri-Core Pillar 1: CLI proxy and native command-output filtering (-60% to -90% input tokens)"
+    },
+    {
+      "repository": "dietrichgebert/ponytail",
+      "url": "https://github.com/dietrichgebert/ponytail",
+      "license_detected": "MIT",
+      "integration": "Tri-Core Pillar 2: 4-Rung Senior Dev code minimalism (-53% code, -45% tokens), micro-tests, /ponytail-review, /ponytail-audit"
+    },
+    {
+      "repository": "juliusbrussee/caveman",
+      "url": "https://github.com/juliusbrussee/caveman",
+      "license_detected": "Apache-2.0 / MIT",
+      "integration": "Tri-Core Pillar 3: Six Rocks output/session compression (-65% output tokens, Read Less, Auto, toolbox/ Blocks, Cache Warmth, Browse)"
+    },
+    {
+      "repository": "tjboudreaux/cc-thinking-skills",
+      "url": "https://github.com/tjboudreaux/cc-thinking-skills",
+      "license_detected": "MIT",
+      "integration": "Cognitive Elevation Engine: 28 mental models and thinking-model-router powering Low-to-Ultra Thinking via MTCS"
+    },
+    {
+      "repository": "obra/superpowers",
+      "url": "https://github.com/obra/superpowers",
+      "license_detected": "MIT",
+      "integration": "Solo Inline SDLC Methodology: brainstorming, writing-plans, executing-plans, RED-GREEN-REFACTOR TDD, systematic-debugging"
+    },
+    {
+      "repository": "msitarzewski/agency-agents",
+      "url": "https://github.com/msitarzewski/agency-agents",
+      "license_detected": "MIT",
+      "integration": "Solo Specialist Persona Roster: Engineering, Design, Security, Product, Testing, and Strategy deliverables absorbed inline without sub-agents"
+    },
+    {
+      "repository": "nidhinjs/prompt-master",
+      "url": "https://github.com/nidhinjs/prompt-master",
+      "license_detected": "MIT",
+      "integration": "Zero-Waste Prompt Engineer: 9-dimension intent extraction, Model Recency Gate, 30+ AI tool profiles, and token audit"
+    },
+    {
+      "repository": "ItsssssJack/SlopMonster",
+      "url": "https://github.com/ItsssssJack/SlopMonster",
+      "license_detected": "MIT",
+      "integration": "Human-Grade Copy Gate: 5-category AI-slop linter (deslop.py), 3-pass rewrite, and cross-model CLI cleanse"
+    },
+    {
+      "repository": "rohitg00/ai-engineering-from-scratch",
+      "url": "https://github.com/rohitg00/ai-engineering-from-scratch",
+      "license_detected": "MIT",
+      "integration": "First-principles AI, RAG, MCP, Agent Skills, and verification harness engineering"
+    },
+    {
+      "repository": "trycua/cua",
+      "url": "https://github.com/trycua/cua",
+      "license_detected": "MIT",
+      "integration": "Computer-Use 2.0: cua-driver background desktop control, cross-OS sandboxes, lume VMs, and cua-bench"
+    },
+    {
+      "repository": "morluto/rea",
+      "url": "https://github.com/morluto/rea",
+      "license_detected": "MIT",
+      "integration": "Reverse Engineer Anything: rea-agents CLI/MCP for web/Electron/JS/.NET/native binaries"
+    },
+    {
+      "repository": "Panniantong/agent-reach",
+      "url": "https://github.com/Panniantong/agent-reach",
+      "license_detected": "MIT",
+      "integration": "Upstream web/platform reading and search channel routing and diagnostics"
+    },
+    {
+      "repository": "public-apis/public-apis",
+      "url": "https://github.com/public-apis/public-apis",
+      "license_detected": "MIT",
+      "integration": "Agent Core API discovery catalog"
+    },
+    {
+      "repository": "browser-use/browser-use",
+      "url": "https://github.com/browser-use/browser-use",
+      "license_detected": "MIT",
+      "integration": "Agent Core browser automation reference"
+    },
+    {
+      "repository": "awesome-selfhosted/awesome-selfhosted",
+      "url": "https://github.com/awesome-selfhosted/awesome-selfhosted",
+      "license_detected": "NOASSERTION",
+      "integration": "Agent Core self-hosted software catalog"
+    },
+    {
+      "repository": "alexandresanlim/public-apis-no-auth-only",
+      "url": "https://github.com/alexandresanlim/public-apis-no-auth-only",
+      "license_detected": "MIT",
+      "integration": "Agent Core no-auth API catalog"
+    },
+    {
+      "repository": "CoffeePrism/awesome-free-tools",
+      "url": "https://github.com/CoffeePrism/awesome-free-tools",
+      "license_detected": null,
+      "integration": "Agent Core browser-based free utilities catalog"
+    },
+    {
+      "repository": "abdessamadbettal/awesome-free-tools",
+      "url": "https://github.com/abdessamadbettal/awesome-free-tools",
+      "license_detected": "CC0-1.0",
+      "integration": "Agent Core developer/design free utilities catalog"
+    },
+    {
+      "repository": "ripienaar/free-for-dev",
+      "url": "https://github.com/ripienaar/free-for-dev",
+      "license_detected": null,
+      "integration": "Agent Core free developer infrastructure catalog"
+    },
+    {
+      "repository": "BuiltByEcho/public-api-finder",
+      "url": "https://github.com/BuiltByEcho/public-api-finder",
+      "license_detected": "MIT",
+      "integration": "Agent Core CLI/structured API discovery"
+    },
+    {
+      "repository": "spinov001-art/awesome-free-developer-tools-2026",
+      "url": "https://github.com/spinov001-art/awesome-free-developer-tools-2026",
+      "license_detected": null,
+      "integration": "Agent Core developer tools comparison catalog"
+    },
+    {
+      "repository": "spinov001-art/awesome-web-scraping-2026",
+      "url": "https://github.com/spinov001-art/awesome-web-scraping-2026",
+      "license_detected": null,
+      "integration": "Agent Core web scraping and extraction catalog"
+    },
+    {
+      "repository": "HKUDS/CLI-Anything",
+      "url": "https://github.com/HKUDS/CLI-Anything",
+      "license_detected": "Apache-2.0",
+      "integration": "CLI-Anything Engine: Agent-native CLI harnesses and headless scripting bridges for Blender, LibreOffice, GIMP, Inkscape, FreeCAD, QGIS, Obsidian, etc."
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+    "schema_version":  1,
+    "checked_at":  "2026-09-25T02:17:29.3977718+00:00",
+    "sources":  [
+                    {
+                        "repository":  "abdessamadbettal/awesome-free-tools",
+                        "url":  "https://github.com/abdessamadbettal/awesome-free-tools",
+                        "commit":  "1a6fb2ae98c948864061612fe8eb4f687597749f",
+                        "readme_url":  "https://github.com/abdessamadbettal/awesome-free-tools/blob/1a6fb2ae98c948864061612fe8eb4f687597749f/README.md",
+                        "license_detected":  "CC0-1.0",
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "alexandresanlim/public-apis-no-auth-only",
+                        "url":  "https://github.com/alexandresanlim/public-apis-no-auth-only",
+                        "commit":  "ff1c205a75104a686491c2292038253db1933f2f",
+                        "readme_url":  "https://github.com/alexandresanlim/public-apis-no-auth-only/blob/ff1c205a75104a686491c2292038253db1933f2f/README.md",
+                        "license_detected":  "MIT",
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "awesome-selfhosted/awesome-selfhosted",
+                        "url":  "https://github.com/awesome-selfhosted/awesome-selfhosted",
+                        "commit":  "09d1130d2c17b8c8c1487dcb33cf78a8e9469b28",
+                        "readme_url":  "https://github.com/awesome-selfhosted/awesome-selfhosted/blob/09d1130d2c17b8c8c1487dcb33cf78a8e9469b28/README.md",
+                        "license_detected":  "NOASSERTION",
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "browser-use/browser-use",
+                        "url":  "https://github.com/browser-use/browser-use",
+                        "commit":  "d8110c5ff87ccba887aaa726cdb780f2f84bef8d",
+                        "readme_url":  "https://github.com/browser-use/browser-use/blob/d8110c5ff87ccba887aaa726cdb780f2f84bef8d/README.md",
+                        "license_detected":  "MIT",
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "BuiltByEcho/public-api-finder",
+                        "url":  "https://github.com/BuiltByEcho/public-api-finder",
+                        "commit":  "a4497456f6660777426bc463ad06ae05cf5148fa",
+                        "readme_url":  "https://github.com/BuiltByEcho/public-api-finder/blob/a4497456f6660777426bc463ad06ae05cf5148fa/README.md",
+                        "license_detected":  "MIT",
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "CoffeePrism/awesome-free-tools",
+                        "url":  "https://github.com/CoffeePrism/awesome-free-tools",
+                        "commit":  "16cb221872e7dedbddaeb9cbc95f7b31b94ef89e",
+                        "readme_url":  "https://github.com/CoffeePrism/awesome-free-tools/blob/16cb221872e7dedbddaeb9cbc95f7b31b94ef89e/README.md",
+                        "license_detected":  null,
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "Panniantong/agent-reach",
+                        "url":  "https://github.com/Panniantong/Agent-Reach",
+                        "commit":  "a19a171fa980a0785849596492e0af4db800c82f",
+                        "readme_url":  "https://github.com/Panniantong/Agent-Reach/blob/a19a171fa980a0785849596492e0af4db800c82f/README.md",
+                        "license_detected":  "MIT",
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "public-apis/public-apis",
+                        "url":  "https://github.com/public-apis/public-apis",
+                        "commit":  "6eace0e8ce5d938121dd9de6dc1b4d2888bc5213",
+                        "readme_url":  "https://github.com/public-apis/public-apis/blob/6eace0e8ce5d938121dd9de6dc1b4d2888bc5213/README.md",
+                        "license_detected":  "MIT",
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "ripienaar/free-for-dev",
+                        "url":  "https://github.com/ripienaar/free-for-dev",
+                        "commit":  "4197e303b0d35ce3c844af3fb05d7d9d8fde215d",
+                        "readme_url":  "https://github.com/ripienaar/free-for-dev/blob/4197e303b0d35ce3c844af3fb05d7d9d8fde215d/README.md",
+                        "license_detected":  null,
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "spinov001-art/awesome-free-developer-tools-2026",
+                        "url":  "https://github.com/spinov001-art/awesome-free-developer-tools-2026",
+                        "commit":  "f42d7b858cad5e19ac9714fd31eb1420cb2504df",
+                        "readme_url":  "https://github.com/spinov001-art/awesome-free-developer-tools-2026/blob/f42d7b858cad5e19ac9714fd31eb1420cb2504df/README.md",
+                        "license_detected":  null,
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    },
+                    {
+                        "repository":  "spinov001-art/awesome-web-scraping-2026",
+                        "url":  "https://github.com/spinov001-art/awesome-web-scraping-2026",
+                        "commit":  "41a3595f81f079cbf6b819f89b29e3e757d7fcb5",
+                        "readme_url":  "https://github.com/spinov001-art/awesome-web-scraping-2026/blob/41a3595f81f079cbf6b819f89b29e3e757d7fcb5/README.md",
+                        "license_detected":  null,
+                        "review_scope":  "Repository metadata and README; no full code or service audit",
+                        "integration":  "Agent Core reference and task-selection guidance; runtime not installed by this update"
+                    }
+                ]
+}
