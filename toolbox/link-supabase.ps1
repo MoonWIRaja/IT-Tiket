@@ -37,8 +37,8 @@ if ($DryRun) { supabase db push --dry-run } else { supabase db push }
 if ($LASTEXITCODE -ne 0) { throw "supabase db push gagal (exit $LASTEXITCODE)." }
 
 if (-not $SkipLint) {
-    Write-Host "== 3/4 supabase db lint --project-ref $ProjectRef =="
-    supabase db lint --project-ref $ProjectRef --fail-on error
+    Write-Host "== 3/4 supabase db lint --linked (proj: $ProjectRef) =="
+    supabase db lint --linked --fail-on error
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "db lint lapor masih ada isu (exit $LASTEXITCODE). Migrasi tetap terpakai - semak senarai di atas."
     }

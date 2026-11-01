@@ -660,7 +660,21 @@ insert into storage.buckets (id, name, public)
 values ('ticket-files', 'ticket-files', false)
 on conflict (id) do update set public = false;
 
-alter table storage.objects enable row level security;
+-- storage.objects dimiliki supabase_storage_admin: ALTER kepadanya gagal di
+-- projek awan (postgres bukan pemilik). RLS table ini diaktifkan oleh Supabase
+-- di setiap projek, jadi lakukan ALTER hanya bila belum aktif.
+do $$
+begin
+  if not exists (
+    select 1
+    from pg_class c
+    where c.relnamespace = 'storage'::regnamespace
+      and c.relname = 'objects'
+      and c.relrowsecurity
+  ) then
+    alter table storage.objects enable row level security;
+  end if;
+end $$;
 
 create policy ticket_files_select on storage.objects
   for select to authenticated
