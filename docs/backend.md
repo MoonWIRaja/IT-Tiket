@@ -73,15 +73,18 @@ menerima baris yang rol mereka boleh baca (RLS digunai per subscriber).
    laksanakan `toolbox/sync-web-env.mjs` (predev/prebuild/prestart) yang menyalin root
    `.env.local` ke `web/.env.local`; suntingan terus dalam `web/.env.local` dihormati selagi
    fail itu lebih baharu daripada root.
-2. Sahkan borang nilai: `pwsh toolbox/check-supabase-config.ps1` → semua nilai asas PASS,
+2. Sahkan borang nilai: `powershell toolbox/check-supabase-config.ps1` -> semua nilai asas PASS,
    tiada kunci dicetak.
 3. Dalam terminal awak sendiri, set token sekali:
    `$env:SUPABASE_ACCESS_TOKEN = "<token dari supabase.com/dashboard/account/tokens>"`,
-   kemudian `pwsh toolbox/link-supabase.ps1 -ProjectRef <PROJECT_REF> -SetCiSecrets`
+   kemudian `powershell toolbox/link-supabase.ps1 -ProjectRef <PROJECT_REF> -SetCiSecrets`
    → `supabase link` + `supabase db push` + `db lint` + rahsia `SUPABASE_*` repo CI disetel.
+   Pilihan direct connection Postgres (dibenarkan MoonWiRaja): letak `SUPABASE_DB_PASSWORD`
+   atau `SUPABASE_DB_URL` dalam `.env.local` — `link-supabase.ps1` memakannya automatik
+   (kata-laluan melalui stdin sahaja; nilai tidak dicetak). Untuk app web, sambungan tetap
+   REST/PostgREST supaya RLS aktif; direct connection hanya untuk CLI/ops/migrasi.
 4. Push satu commit (fail dalam `supabase/`, `toolbox/`, `docs/`) supaya backend-ci jalankan
    `db push --dry-run` dengan rahsia baharu.
-
 
 ## Baki (akan datang / perlu keputusan)
 
