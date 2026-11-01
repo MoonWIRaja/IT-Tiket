@@ -57,4 +57,4 @@ if ($SetCiSecrets) {
 }
 
 Write-Host "== SIAP. Studio web: https://supabase.com/dashboard/project/$ProjectRef =="
-Write-Host "Baki pilihan awak: isi web/.env.local (URL + anon key (+ service_role)) lalu powershell toolbox/check-supabase-config.ps1."
+Write-Host "Baki pilihan awak: isi .env.local DI ROOT (URL + anon key (+ service_role)) lalu powershell toolbox/check-supabase-config.ps1. web/.env.local diselaras automatik oleh predev/prebuild."

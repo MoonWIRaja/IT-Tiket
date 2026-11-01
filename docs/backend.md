@@ -65,10 +65,14 @@ menerima baris yang rol mereka boleh baca (RLS digunai per subscriber).
 
 ## Sambung projek Supabase — langkah siap-guna (MoonWiRaja isi sendiri)
 
-1. Buka `web/.env.local` (fail sudah disediakan, di-gitignore). Isi dari
-   `https://supabase.com/dashboard/project/<PROJECT_REF>/settings/api`:
+1. Buka `.env.local` **di root repo** (fail sudah disediakan, di-gitignore; template: `.env.example`
+   yang juga di root). Isi dari `https://supabase.com/dashboard/project/<PROJECT_REF>/settings/api`:
    `NEXT_PUBLIC_SUPABASE_URL` (Project URL), `NEXT_PUBLIC_SUPABASE_ANON_KEY` (anon public),
    dan `SUPABASE_SERVICE_ROLE_KEY` jika skrin admin akan digunakan (server sahaja).
+   Next.js di `web/` memuat nilaian ini secara automatik: `npm run dev`/`build`/`start`
+   laksanakan `toolbox/sync-web-env.mjs` (predev/prebuild/prestart) yang menyalin root
+   `.env.local` ke `web/.env.local`; suntingan terus dalam `web/.env.local` dihormati selagi
+   fail itu lebih baharu daripada root.
 2. Sahkan borang nilai: `pwsh toolbox/check-supabase-config.ps1` → semua nilai asas PASS,
    tiada kunci dicetak.
 3. Dalam terminal awak sendiri, set token sekali:

@@ -2,8 +2,11 @@
   "name": "it-tiket-web",
   "private": true,
   "scripts": {
+    "predev": "node ../toolbox/sync-web-env.mjs",
     "dev": "next dev",
+    "prebuild": "node ../toolbox/sync-web-env.mjs",
     "build": "next build",
+    "prestart": "node ../toolbox/sync-web-env.mjs",
     "start": "next start"
   },
   "dependencies": {

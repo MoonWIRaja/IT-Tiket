@@ -12,7 +12,15 @@ $fail = 0
 $scriptRoot = $PSScriptRoot
 if (-not $scriptRoot -and $MyInvocation.MyCommand.Path) { $scriptRoot = Split-Path -Parent $MyInvocation.MyCommand.Path }
 if (-not $scriptRoot) { $scriptRoot = Get-Location }
-if (-not $EnvFile) { $EnvFile = Join-Path $scriptRoot '..\web\.env.local' }
+if (-not $EnvFile) {
+    $envRoot = Join-Path $scriptRoot '..\.env.local'
+    $envWeb  = Join-Path $scriptRoot '..\web\.env.local'
+    if (Test-Path $envRoot) { $EnvFile = $envRoot }
+    elseif (Test-Path $envWeb) {
+        $EnvFile = $envWeb
+        Write-Host "PESAN: root .env.local tiada; nilaian dibaca dari web/.env.local sementara. Fail rasmi: .env.local di root." -ForegroundColor Yellow
+    } else { $EnvFile = $envRoot }
+}
 
 function Read-DotEnv([string]$path) {
     if (-not (Test-Path $path)) { return $null }
@@ -30,7 +38,7 @@ function Read-DotEnv([string]$path) {
 Write-Host "== Semak $EnvFile =="
 $e = Read-DotEnv $EnvFile
 if ($null -eq $e) {
-    Write-Host "FAIL: fail tiada. Salin web/.env.example ke web/.env.local, isi nilai, jalan semula." -ForegroundColor Red
+    Write-Host "FAIL: fail tiada. Salin .env.example (root) ke .env.local (root), isi nilai, jalan semula." -ForegroundColor Red
     exit 1
 }
 

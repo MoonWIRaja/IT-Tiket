@@ -27,7 +27,8 @@ supabase db push            # apply semua migration + seed ke projek awak
 Studio projek awak (Auth, Storage, SQL editor, tabel): `https://supabase.com/dashboard`.
 Frontend Next.js dan Flutter boleh jalan sepenuhnya di mesin ini tanpa apa-apa container.
 
-Sudah sedia dijimatkan untuk awak: `web/.env.local` (isi sendiri nilai dari settings/api),
+Sudah sedia dijimatkan untuk awak: `.env.local` **di root** (isi sendiri nilai dari
+settings/api - satu tempat; Next.js di `web/` diselaras automatik melalui predev/prebuild),
 `toolbox/check-supabase-config.ps1` (sahkan borang nilai, tiada kunci dicetak) dan
 `toolbox/link-supabase.ps1` (link + `db push` + lint + rahsia CI `-SetCiSecrets`). Langkah
 penuh: [docs/backend.md](docs/backend.md) → "Sambung projek Supabase".
