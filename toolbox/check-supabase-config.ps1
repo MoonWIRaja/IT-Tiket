@@ -45,7 +45,7 @@ if ($null -eq $e) {
 $url = $e['NEXT_PUBLIC_SUPABASE_URL']
 $ref = $null
 if (-not $url) {
-    Write-Host "FAIL: NEXT_PUBLIC_SUPABASE_URL kosong. Tampal Project URL dari settings/api ke .env.local (root)." -ForegroundColor Red
+    Write-Host "FAIL: NEXT_PUBLIC_SUPABASE_URL kosong. Tampal Project URL dari settings/api." -ForegroundColor Red
     $fail++
 } elseif ($url -match '^https://(?<r>[a-z0-9]{20})\.supabase\.co/?$') {
     $ref = $Matches['r']
@@ -82,21 +82,6 @@ if ($ice) {
     Write-Host "PESAN: NEXT_PUBLIC_ICE_SERVERS kosong = STUN awam sahaja; panggilan produksi perlukan TURN nanti."
 }
 
-# Direct connection Postgres (bila awak setel): untuk CLI/toolbox sahaja.
-$dbUrl = $e['SUPABASE_DB_URL']
-if (-not $dbUrl -and $env:SUPABASE_DB_URL) { $dbUrl = $env:SUPABASE_DB_URL }
-if ($dbUrl -and $dbUrl.Trim()) {
-    if ($dbUrl.Trim() -match '^postgres(ql)?://[^\s]+$' -and $dbUrl -match 'supabase\.(co|com)') {
-        Write-Host "PASS: SUPABASE_DB_URL disetel - direct connection aktif untuk CLI (lint/push)."
-    } else {
-        Write-Host "AMARAN: SUPABASE_DB_URL tidak seperti URL Postgres Supabase (postgresql://...pooler.supabase.com:5432/postgres)." -ForegroundColor Yellow
-    }
-} elseif ($e['SUPABASE_DB_PASSWORD'] -or $env:SUPABASE_DB_PASSWORD) {
-    Write-Host "PASS: SUPABASE_DB_PASSWORD disetel - CLI boleh jawab soalan kata-laluan secara automatik."
-} else {
-    Write-Host "PESAN: direct connection belum disetel (SUPABASE_DB_PASSWORD / SUPABASE_DB_URL kosong) - cukup access token untuk link + db push; lint penuh perlu kelayakan DB nanti."
-}
-
 if ($ref) {
     $linkFile = Join-Path $PSScriptRoot '..\supabase\.temp\project-id'
     if (Test-Path $linkFile) {
@@ -111,7 +96,7 @@ if ($ref) {
 }
 
 if ($fail -gt 0) {
-    Write-Host "== $fail item GAGAL. Isi .env.local (ROOT) dengan betul dahulu. ==" -ForegroundColor Red
+    Write-Host "== $fail item GAGAL. Isi web/.env.local dengan betul dahulu. ==" -ForegroundColor Red
     exit 1
 }
 Write-Host "== SEMUA NILAI ASAS PASS. ==" -ForegroundColor Green
