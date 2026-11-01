@@ -16,9 +16,10 @@ OpenBot; keputusan produk/peranan direkodkan oleh Luna (Desktop `.Mcore` memory)
 ## Jalankan lokal
 
 ```powershell
-# 1. Docker Desktop perlu jalan
+# 1. Docker Desktop perlu jalan (WSL2 distro wajib untuk Linux engine)
 # 2. sekali sahaja
 npm install -g supabase
+supabase init        # hanya jika supabase/config.toml hilang (config ini sudah dalam repo)
 # 3. stack lokal
 supabase start          # Studio: http://127.0.0.1:54323  API: 54321  DB: 54322
 supabase db reset       # apply migrations + seed.sql
