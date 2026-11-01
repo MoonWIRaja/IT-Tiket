@@ -53,7 +53,7 @@ create table public.ticket_attachments (
   id uuid primary key default gen_random_uuid(),
   ticket_id uuid not null references public.tickets (id) on delete cascade,
   message_id uuid references public.ticket_messages (id) on delete cascade,
-  storage_path text not null check (storage_path ~ '^[0-9a-f-]{36}/[0-9a-f-]{36}$'),
+  storage_path text not null check (storage_path ~ '^[0-9a-f-]{36}/(public|internal)/[0-9a-f-]{36}$'),
   original_name text not null check (char_length(original_name) between 1 and 200),
   content_type text not null check (content_type in ('image/png', 'image/jpeg', 'image/webp', 'application/pdf', 'text/plain')),
   size_bytes integer not null check (size_bytes between 1 and 10485760),
@@ -299,6 +299,39 @@ begin
 end;
 $$;
 
+create or replace function public.guard_attachment_write()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  message_visibility text;
+begin
+  if auth.role() = 'service_role' then
+    return new;
+  end if;
+  if new.uploaded_by is distinct from auth.uid() then
+    raise exception 'forbidden';
+  end if;
+  if public.app_actor_role() = 'karyawan' and new.storage_path !~ '/public/' then
+    raise exception 'forbidden';
+  end if;
+  if new.message_id is not null then
+    select m.visibility into message_visibility
+    from public.ticket_messages m
+    where m.id = new.message_id and m.ticket_id = new.ticket_id;
+    if message_visibility is null then
+      raise exception 'forbidden';
+    end if;
+    if public.app_actor_role() = 'karyawan' and message_visibility is distinct from 'public' then
+      raise exception 'forbidden';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
 create or replace function public.guard_call_write()
 returns trigger
 language plpgsql
@@ -350,6 +383,9 @@ begin
     end if;
   end if;
   update public.profiles set role = new_role where id = target;
+  if not found then
+    raise exception 'role update failed';
+  end if;
   perform public.write_audit(auth.uid(), 'set_role', 'profiles', target, jsonb_build_object('role', new_role));
 end;
 $$;
@@ -365,6 +401,9 @@ begin
     raise exception 'forbidden';
   end if;
   update public.profiles set active = is_active where id = target;
+  if not found then
+    raise exception 'active update failed';
+  end if;
   perform public.write_audit(auth.uid(), 'set_active', 'profiles', target, jsonb_build_object('active', is_active));
 end;
 $$;
@@ -381,22 +420,27 @@ begin
   end if;
   delete from public.ticket_metrics_monthly;
   insert into public.ticket_metrics_monthly (month, opened, closed, avg_close_hours, by_category)
-  select
-    date_trunc('month', created_at)::date,
-    count(*)::integer,
-    count(*) filter (where status in ('resolved', 'closed'))::integer,
-    avg(extract(epoch from (closed_at - created_at)) / 3600.0) filter (where closed_at is not null),
-    coalesce(jsonb_object_agg(category, category_count) filter (where category is not null), '{}'::jsonb)
-  from (
+  with months as (
     select
-      created_at,
-      status,
-      closed_at,
-      category,
-      count(*) over (partition by date_trunc('month', created_at), category) as category_count
+      date_trunc('month', created_at)::date as month,
+      count(*)::integer as opened,
+      count(*) filter (where status in ('resolved', 'closed'))::integer as closed,
+      avg(extract(epoch from (closed_at - created_at)) / 3600.0) filter (where closed_at is not null) as avg_close_hours
     from public.tickets
-  ) s
-  group by date_trunc('month', created_at);
+    group by 1
+  ),
+  cats as (
+    select month, jsonb_object_agg(category, cnt) as by_category
+    from (
+      select date_trunc('month', created_at)::date as month, category, count(*) as cnt
+      from public.tickets
+      group by 1, 2
+    ) per_category
+    group by month
+  )
+  select months.month, months.opened, months.closed, months.avg_close_hours, coalesce(cats.by_category, '{}'::jsonb)
+  from months
+  left join cats on cats.month = months.month;
 end;
 $$;
 
@@ -421,6 +465,10 @@ create trigger messages_guard
   before insert on public.ticket_messages
   for each row execute function public.guard_message_write();
 
+create trigger attachments_guard
+  before insert on public.ticket_attachments
+  for each row execute function public.guard_attachment_write();
+
 create trigger calls_guard
   before insert or update on public.call_sessions
   for each row execute function public.guard_call_write();
@@ -432,6 +480,7 @@ revoke all on function public.write_audit(uuid, text, text, uuid, jsonb) from pu
 revoke all on function public.guard_ticket_write() from public;
 revoke all on function public.audit_ticket() from public;
 revoke all on function public.guard_message_write() from public;
+revoke all on function public.guard_attachment_write() from public;
 revoke all on function public.guard_call_write() from public;
 revoke all on function public.admin_set_role(uuid, text) from public;
 revoke all on function public.admin_set_active(uuid, boolean) from public;
@@ -523,7 +572,18 @@ create policy attachments_select on public.ticket_attachments
       where t.id = ticket_id
         and (
           public.app_actor_role() in ('it', 'admin')
-          or (public.app_actor_role() = 'karyawan' and t.requester_id = auth.uid())
+          or (
+            public.app_actor_role() = 'karyawan'
+            and t.requester_id = auth.uid()
+            and storage_path ~ '/public/'
+            and (
+              message_id is null
+              or exists (
+                select 1 from public.ticket_messages m
+                where m.id = message_id and m.visibility = 'public'
+              )
+            )
+          )
         )
     )
   );
@@ -537,7 +597,11 @@ create policy attachments_insert on public.ticket_attachments
       where t.id = ticket_id
         and (
           public.app_actor_role() in ('it', 'admin')
-          or (public.app_actor_role() = 'karyawan' and t.requester_id = auth.uid())
+          or (
+            public.app_actor_role() = 'karyawan'
+            and t.requester_id = auth.uid()
+            and storage_path ~ '/public/'
+          )
         )
     )
   );
@@ -605,6 +669,14 @@ create policy ticket_files_select on storage.objects
     and exists (
       select 1 from public.tickets t
       where t.id::text = (storage.foldername(name))[1]
+        and (
+          public.app_actor_role() in ('it', 'admin')
+          or (
+            public.app_actor_role() = 'karyawan'
+            and t.requester_id = auth.uid()
+            and (storage.foldername(name))[2] = 'public'
+          )
+        )
     )
   );
 
@@ -618,7 +690,11 @@ create policy ticket_files_insert on storage.objects
       where t.id::text = (storage.foldername(name))[1]
         and (
           public.app_actor_role() in ('it', 'admin')
-          or (public.app_actor_role() = 'karyawan' and t.requester_id = auth.uid())
+          or (
+            public.app_actor_role() = 'karyawan'
+            and t.requester_id = auth.uid()
+            and (storage.foldername(name))[2] = 'public'
+          )
         )
     )
   );

@@ -6,12 +6,12 @@ OpenBot; keputusan produk/peranan direkodkan oleh Luna (Desktop `.Mcore` memory)
 
 | Bahagian | Sasaran |
 |---|---|
-| Backend | Supabase — `supabase/` (Gos, Backend & DevOps) |
+| Backend | Supabase — `supabase/` (Gos, Backend & DevOps; model akses kanonik oleh Gok) |
 | Web | Next.js + JS, desktop-first (Kid) |
 | Aplikasi telefon | Flutter, API sama dengan web |
 | Kod sumber | Git / GitHub repository, CI pada push |
-| Ujian keselamatan & QA | Strix review + probe RLS (Gok) |
-| Penyelidikan & dokumentasi | `.Mcore` + docs (Gim) |
+| Ujian keselamatan & QA | Strix review + probe RLS + `toolbox/check-access-control.ps1` (Gok) |
+| Penyelidikan & dokumentasi | `.Mcore` + docs (Gim, Luna) |
 
 ## Jalankan lokal
 
