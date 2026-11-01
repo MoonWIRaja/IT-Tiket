@@ -63,6 +63,22 @@ menerima baris yang rol mereka boleh baca (RLS digunai per subscriber).
 `.github/workflows/supabase-ci.yml` (tanpa Docker): gate statik akses (PowerShell) + dry-run
 `db push` ke projek Supabase bila secret repo `SUPABASE_ACCESS_TOKEN`/`SUPABASE_PROJECT_REF` ada.
 
+## Sambung projek Supabase — langkah siap-guna (MoonWiRaja isi sendiri)
+
+1. Buka `web/.env.local` (fail sudah disediakan, di-gitignore). Isi dari
+   `https://supabase.com/dashboard/project/<PROJECT_REF>/settings/api`:
+   `NEXT_PUBLIC_SUPABASE_URL` (Project URL), `NEXT_PUBLIC_SUPABASE_ANON_KEY` (anon public),
+   dan `SUPABASE_SERVICE_ROLE_KEY` jika skrin admin akan digunakan (server sahaja).
+2. Sahkan borang nilai: `pwsh toolbox/check-supabase-config.ps1` → semua nilai asas PASS,
+   tiada kunci dicetak.
+3. Dalam terminal awak sendiri, set token sekali:
+   `$env:SUPABASE_ACCESS_TOKEN = "<token dari supabase.com/dashboard/account/tokens>"`,
+   kemudian `pwsh toolbox/link-supabase.ps1 -ProjectRef <PROJECT_REF> -SetCiSecrets`
+   → `supabase link` + `supabase db push` + `db lint` + rahsia `SUPABASE_*` repo CI disetel.
+4. Push satu commit (fail dalam `supabase/`, `toolbox/`, `docs/`) supaya backend-ci jalankan
+   `db push --dry-run` dengan rahsia baharu.
+
+
 ## Baki (akan datang / perlu keputusan)
 
 1. Projek Supabase cloud untuk pembangunan (tiada Docker) — perlu akaun MoonWiRaja atau pilihan.
