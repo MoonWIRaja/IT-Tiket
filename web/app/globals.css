@@ -290,3 +290,29 @@ button.round:hover:not(:disabled){transform:none}
 .composer-send,.composer-send:hover:not(:disabled){flex:none;margin-left:auto;width:32px;height:32px;padding:6px;border:0;border-radius:50%;background:var(--ink);color:var(--card);display:grid;place-items:center;transform:none}
 .composer-send svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .composer-send:disabled{background:var(--line);color:var(--mute);opacity:1}
+
+.room{display:block}
+.thread header{max-height:none;overflow:visible;display:grid;gap:10px}
+.thread h1{margin:0;font-size:20px;overflow-wrap:anywhere}
+.ticket-head{align-items:flex-start;gap:12px}.ticket-name{min-width:0;display:grid}
+.ticket-info{display:grid;gap:10px}.ticket-info>.prewrap{max-height:84px;overflow:auto}
+.ticket-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.ticket-meta{gap:6px 14px}
+.info-toggle,.info-toggle:hover:not(:disabled){display:none;width:32px;height:32px;padding:0;border-radius:50%;font-style:italic;transform:none}
+.bubble .file-chip,.bubble .file-photo,.ticket-meta .file-chip{margin-top:4px}
+.file-chip,.file-chip:hover:not(:disabled){display:flex;align-items:center;gap:9px;max-width:300px;padding:7px 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);text-align:left;font-weight:400;transform:none}
+.file-chip i{flex:none;padding:3px 6px;border-radius:6px;background:var(--bad-soft);color:var(--bad);font-size:11px;font-style:normal;font-weight:700}
+.file-chip span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-photo,.file-photo:hover:not(:disabled){display:block;padding:0;border:0;border-radius:10px;overflow:hidden;background:none;transform:none}
+.file-photo img{display:block;max-width:min(280px,100%);max-height:240px;min-width:80px;min-height:60px;object-fit:cover}
+.pending{display:flex;flex-wrap:wrap;gap:6px}
+.pending-file{display:inline-flex;align-items:center;gap:4px;max-width:260px;padding:3px 4px 3px 10px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pending-file button,.pending-file button:hover:not(:disabled){flex:none;width:20px;height:20px;padding:0;border:0;background:none;line-height:1;transform:none}
+@media(max-width:800px){
+  .thread{height:calc(100dvh - 58px - 104px - 28px)}
+  .thread header{max-height:none}
+  .ticket-head .pill{display:none}
+  .info-toggle,.info-toggle:hover:not(:disabled){display:block}
+  .ticket-info{display:none}.ticket-info.open{display:grid;max-height:42dvh;overflow:auto}
+  .ticket-fields{grid-template-columns:1fr}
+}
