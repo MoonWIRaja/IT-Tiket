@@ -231,3 +231,6 @@ body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
 .chat-av{width:42px;height:42px;font-size:17px}
 .chat-text{flex:1;min-width:0;display:grid;gap:1px}.chat-text b,.chat-text small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .chat-meta{align-content:center;align-items:center}.chat-meta .pill{display:inline-block;height:auto;line-height:1.5;justify-self:end}
+
+.incoming{position:fixed;z-index:60;top:calc(12px + env(safe-area-inset-top));left:50%;translate:-50% 0;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:16px;background:var(--card);border:1px solid var(--line);box-shadow:0 12px 34px rgb(0 0 0/.3);white-space:nowrap}
+.incoming button{padding:6px 12px}

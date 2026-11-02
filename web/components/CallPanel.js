@@ -19,6 +19,8 @@ export function CallPanel({ supabase, ticketId, profile, canStart }) {
 
   function cleanup() {
     const r = refs.current;
+    clearInterval(r.timer);
+    clearTimeout(r.giveUp);
     r.pc?.close();
     r.stream?.getTracks().forEach((t) => t.stop());
     Object.assign(r, { pc: null, stream: null, sessionId: null, offer: null, pending: [] });
@@ -48,9 +50,12 @@ export function CallPanel({ supabase, ticketId, profile, canStart }) {
       if (supabase.realtime?.setAuth) await supabase.realtime.setAuth();
       if (cancelled) return;
       channel = supabase.channel(`call:${ticketId}`, { config: { private: true, broadcast: { self: false } } })
-      .on('broadcast', { event: 'offer' }, mine((p) => { r.offer = p; setVideo(!!p.video); setState('ringing'); }))
+      .on('broadcast', { event: 'offer' }, mine((p) => { if (r.pc) return; r.offer = p; setVideo(!!p.video); setState('ringing'); }))
       .on('broadcast', { event: 'answer' }, mine(async (p) => {
-        await r.pc?.setRemoteDescription(p.sdp);
+        if (r.pc?.signalingState !== 'have-local-offer') return;
+        clearInterval(r.timer);
+        clearTimeout(r.giveUp);
+        await r.pc.setRemoteDescription(p.sdp);
         for (const c of r.pending.splice(0)) await r.pc.addIceCandidate(c);
       }))
       .on('broadcast', { event: 'ice' }, mine(async (p) => {
@@ -82,7 +87,11 @@ export function CallPanel({ supabase, ticketId, profile, canStart }) {
       setState('calling');
       const pc = await peer(withVideo);
       await pc.setLocalDescription(await pc.createOffer());
-      send('offer', { sdp: pc.localDescription, sessionId: data.id, video: withVideo });
+      // The other person may still be opening the ticket, so keep ringing.
+      const offer = () => send('offer', { sdp: pc.localDescription, sessionId: data.id, video: withVideo });
+      offer();
+      refs.current.timer = setInterval(offer, 2000);
+      refs.current.giveUp = setTimeout(() => { setError('No answer.'); hangup(); }, 45000);
     } catch (e) { setError(e.message); hangup(); }
   }
 
