@@ -241,3 +241,6 @@ body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
 .call-stage.video.swapped .local{position:absolute;inset:0;width:100%;height:100%;border-radius:0;object-fit:cover}
 .call-stage.video.swapped .remote{position:absolute;z-index:1;top:12px;right:12px;width:min(26%,180px);height:auto;border-radius:12px}
 .call-stage .local{cursor:pointer;z-index:1}.call-stage.video.swapped .local{z-index:0}.call-bar{z-index:2}
+.call-stage.video.controlling .remote{object-fit:contain;cursor:crosshair;outline:none;touch-action:none}.call-stage.controlling .local{display:none}
+.control-ask{position:absolute;z-index:3;top:12px;left:12px;right:12px;display:grid;gap:8px;padding:12px;border-radius:12px;background:var(--card);color:var(--text,inherit)}
+.control-ask input{width:12ch;letter-spacing:.1em;text-transform:uppercase}

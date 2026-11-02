@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { PRIORITY, STATUS, isStaff, ticketNo, when } from '@/lib/labels';
 import { uploadFile } from '@/lib/upload';
+import { notify } from '@/lib/alerts';
 import { CallPanel } from './CallPanel';
 
 export function TicketRoom({ profile, initialTicket, initialMessages, initialFiles, people }) {
@@ -61,6 +62,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
     if (err) return setError(err.message);
     setText('');
     setMessages((all) => all.some((x) => x.id === data.id) ? all : [...all, data]);
+    notify(supabase, 'message', data.id);
   }
 
   async function update(patch) {
@@ -99,7 +101,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
           <small className="muted">{ticketNo(ticket.number)} · {ticket.category}</small>
           <div className="row spread">
             <h1>{ticket.title}</h1>
-            {ticket.status !== 'closed' && <CallPanel supabase={supabase} ticketId={ticket.id} profile={profile} canStart={chatStarted} />}
+            {ticket.status !== 'closed' && <CallPanel supabase={supabase} ticketId={ticket.id} profile={profile} canStart={staff || chatStarted} staff={staff} />}
           </div>
           <p className="prewrap">{ticket.body}</p>
         </header>
@@ -117,7 +119,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
             <div ref={end} />
           </div>
           {error && <p className="error">{error}</p>}
-          {!started && <p className="chat-wait">IT will start the chat here. You can reply and call once they do.</p>}
+          {!started && <p className="chat-wait">IT will start the chat here. You can reply and call once they do. IT can still call you here.</p>}
           {started && ticket.status !== 'closed' && <form className="composer" onSubmit={send}>
             <textarea rows={2} maxLength={8000} value={text} placeholder={staff && !messages.length ? 'Start the chat' : 'Write a message'} onChange={(e) => setText(e.target.value)} />
             <div className="row spread">

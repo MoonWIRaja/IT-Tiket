@@ -95,5 +95,11 @@ menerima baris yang rol mereka boleh baca (RLS digunai per subscriber).
 
 - A `closed` ticket is hidden from its employee requester at the database level: messages, attachments (rows and storage files), call logs and call signalling. The ticket row itself stays visible (status only). IT/Admin keep full access.
 - Only an Admin can move a ticket out of `closed`; IT and employees are refused. Employees may still reopen a `resolved` ticket within 14 days. Close and reopen are audited as `ticket_closed` / `ticket_reopened` (actor, from, to).
-- An employee can send messages or attach to a message only after IT/Admin posted a public message in that ticket (`ticket_chat_started()`). Calls and call signaling are unavailable to every role until that public staff message exists, and all calls are blocked while a ticket is closed. Initial attachments without a message stay allowed for the new-ticket form.
+- An employee can send messages or attach to a message only after IT/Admin posted a public message in that ticket (`ticket_chat_started()`). Employees can start a call only after that message; IT/Admin can call any non-closed ticket without a chat (migration 20261102180000). All calls are blocked while a ticket is closed. Initial attachments without a message stay allowed for the new-ticket form.
 - Test (no cloud, no Docker): `cd toolbox/db-tests; npm install; npm test` runs every migration in an in-process Postgres (PGlite) with stubs for auth/storage/realtime.
+
+## Push and remote control (migration 20261102180000)
+
+- Web push: `supabase/functions/notify` sends to the assignee (or all active IT when unassigned) and the requester. Secrets: `VAPID_SUBJECT`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`. Repo variable: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`. On iPhone, push needs the installed PWA.
+- Calls across networks need a TURN server: set repo variable `NEXT_PUBLIC_ICE_SERVERS` (JSON array).
+- Remote control: browsers cannot inject input, so the employee runs `web/public/it-tiket-remote.cmd` (Windows, no install). It listens on 127.0.0.1:47615, accepts only the listed origins and its one-time 8-character code, and exits after 5 wrong codes. IT input travels over the call's WebRTC data channel to the employee's browser, then to the helper. It needs the entire primary screen shared. Grants and stops are audited (`remote_control_granted`/`remote_control_stopped`). It cannot operate UAC prompts or Ctrl+Alt+Del. Add new web origins to the helper's `$origins`.

@@ -14,3 +14,19 @@ self.addEventListener('fetch', (e) => {
     return res;
   }).catch(() => caches.match(e.request)));
 });
+
+self.addEventListener('push', (e) => {
+  const n = e.data?.json() ?? {};
+  e.waitUntil(self.registration.showNotification(n.title ?? 'IT-Tiket', {
+    body: n.body, tag: n.tag, icon: 'icon-192.png', data: { url: n.url },
+    requireInteraction: !!n.call, vibrate: n.call ? [400, 200, 400, 200, 400] : [200],
+  }));
+});
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = new URL(e.notification.data?.url ?? '', self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((tabs) => {
+    const tab = tabs[0];
+    return tab ? tab.focus().then(() => tab.navigate(url)) : self.clients.openWindow(url);
+  }));
+});
