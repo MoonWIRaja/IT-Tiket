@@ -14,5 +14,5 @@ export default function Reports() {
     setRes({ data: data ?? [], error: error?.message });
   }, []);
   useEffect(() => { if (profile.role === 'karyawan') router.replace('/tickets/'); else load(); }, [profile, router, load]);
-  return <ReportView rows={res.data} error={res.error} canRefresh={profile.role === 'admin'} onRefresh={load} />;
+  return <ReportView rows={res.data} error={res.error} />;
 }

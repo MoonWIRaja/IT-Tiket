@@ -1,23 +1,14 @@
 'use client';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
 import { RowList, Fact } from '@/components/RowList';
 
 const month = (d) => new Date(d).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 const hours = (h) => h == null ? '—' : `${Number(h).toFixed(1)} h`;
 
-export function ReportView({ rows, error, canRefresh, onRefresh }) {
-  const [note, setNote] = useState(error);
+export function ReportView({ rows, error }) {
   const latest = rows[0];
   const cats = Object.entries(latest?.by_category ?? {}).sort((a, b) => b[1] - a[1]);
   const top = cats[0]?.[1] ?? 1;
-
-  async function refresh() {
-    const { error: err } = await createClient().rpc('refresh_ticket_metrics');
-    setNote(err?.message);
-    onRefresh();
-  }
 
   function exportCsv() {
     const cell = (v) => `"${String(v ?? '').replaceAll('"', '""')}"`;
@@ -34,11 +25,10 @@ export function ReportView({ rows, error, canRefresh, onRefresh }) {
       <header className="row spread wrap page-head">
         <h1>Monthly reports</h1>
         <div className="row">
-          {canRefresh && <button onClick={refresh}>Recalculate</button>}
           <button onClick={exportCsv} disabled={!rows.length}>Export CSV</button>
         </div>
       </header>
-      {note && <p className="error">{note}</p>}
+      {error && <p className="error">{error}</p>}
       {!latest ? <p className="card muted">No report data yet. Figures appear here after tickets are created.</p> : <>
         <div className="tiles">
           {[['Opened', latest.opened], ['Resolved', latest.closed], ['Average resolution', hours(latest.avg_close_hours)]].map(([k, v]) => (
