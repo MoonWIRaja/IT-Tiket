@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { BASE, go } from '@/lib/base';
 import { createClient } from '@/lib/supabase/client';
 
 export default function Login() {
@@ -14,7 +15,7 @@ export default function Login() {
     e.preventDefault();
     setBusy(true); setNote(null);
     const auth = createClient().auth;
-    const redirect = `${location.origin}/auth/callback`;
+    const redirect = `${location.origin}${BASE}/`;
     const { data, error } =
       mode === 'signin' ? await auth.signInWithPassword({ email: form.email, password: form.password })
       : mode === 'signup' ? await auth.signUp({ email: form.email, password: form.password,
@@ -22,7 +23,7 @@ export default function Login() {
       : await auth.signInWithOtp({ email: form.email, options: { emailRedirectTo: redirect, shouldCreateUser: false } });
     setBusy(false);
     if (error) return setNote({ bad: true, text: error.message });
-    if (data?.session) return location.assign('/');
+    if (data?.session) return go('/');
     setNote({ text: 'Semak email anda untuk pautan masuk.' });
   }
 

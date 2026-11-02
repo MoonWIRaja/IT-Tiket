@@ -1,15 +1,24 @@
-import { redirect } from 'next/navigation';
-import { getProfile } from '@/lib/supabase/server';
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
+import { useProfile } from '@/components/AppGate';
 import { isStaff, when } from '@/lib/labels';
 
-export default async function Audit() {
-  const { supabase, profile } = await getProfile();
-  if (!isStaff(profile.role)) redirect('/');
-  const [{ data, error }, { data: people }] = await Promise.all([
-    supabase.from('audit_events').select('*').order('at', { ascending: false }).limit(300),
-    supabase.from('profiles').select('id,display_name'),
-  ]);
-  const names = Object.fromEntries((people ?? []).map((p) => [p.id, p.display_name]));
+export default function Audit() {
+  const profile = useProfile();
+  const router = useRouter();
+  const [st, setSt] = useState({ data: null, error: null, names: {} });
+  useEffect(() => {
+    if (!isStaff(profile.role)) return router.replace('/');
+    const supabase = createClient();
+    Promise.all([
+      supabase.from('audit_events').select('*').order('at', { ascending: false }).limit(300),
+      supabase.from('profiles').select('id,display_name'),
+    ]).then(([{ data, error }, { data: people }]) =>
+      setSt({ data, error, names: Object.fromEntries((people ?? []).map((p) => [p.id, p.display_name])) }));
+  }, [profile, router]);
+  const { data, error, names } = st;
   return (
     <>
       <h1>Audit log</h1>

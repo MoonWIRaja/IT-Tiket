@@ -42,3 +42,6 @@ build/
 .dart_tool/
 .flutter-plugins*
 pubspec.lock
+
+web/out/
+web/.next/

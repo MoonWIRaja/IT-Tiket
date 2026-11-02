@@ -1,14 +1,12 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 
 const month = (d) => new Date(d).toLocaleDateString('ms-MY', { month: 'long', year: 'numeric' });
 const hours = (h) => h == null ? '—' : `${Number(h).toFixed(1)} jam`;
 
-export function ReportView({ rows, error, canRefresh }) {
-  const router = useRouter();
+export function ReportView({ rows, error, canRefresh, onRefresh }) {
   const [note, setNote] = useState(error);
   const latest = rows[0];
   const cats = Object.entries(latest?.by_category ?? {}).sort((a, b) => b[1] - a[1]);
@@ -17,7 +15,7 @@ export function ReportView({ rows, error, canRefresh }) {
   async function refresh() {
     const { error: err } = await createClient().rpc('refresh_ticket_metrics');
     setNote(err?.message);
-    router.refresh();
+    onRefresh();
   }
 
   function exportCsv() {

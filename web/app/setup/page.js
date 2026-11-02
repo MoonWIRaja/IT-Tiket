@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { BASE, go } from '@/lib/base';
 import { createClient } from '@/lib/supabase/client';
 
 export default function SetupPage() {
@@ -13,7 +14,9 @@ export default function SetupPage() {
     let dead = false;
     (async () => {
       try {
-        const status = await fetch('/api/setup').then((r) => r.json());
+        const { data: avail, error: aerr } = await createClient().rpc('setup_is_available');
+        if (aerr) throw aerr;
+        const status = { available: avail === true };
         if (dead) return;
         if (!status.available) { setState('closed'); return; }
         const { data: { session } } = await createClient().auth.getSession();
@@ -28,15 +31,10 @@ export default function SetupPage() {
 
   async function finish() {
     setBusy(true); setNote('');
-    const result = await fetch('/api/setup', { method: 'POST' });
-    const payload = await result.json().catch(() => ({}));
+    const { error } = await createClient().rpc('promote_first_admin');
     setBusy(false);
-    if (!result.ok) {
-      setNote(payload.error || 'Setup tidak berjaya.');
-      if (result.status === 409) setState('closed');
-      return;
-    }
-    location.assign('/');
+    if (error) { setNote('Setup gagal atau admin pertama sudah diwujudkan.'); setState('closed'); return; }
+    go('/');
   }
 
   async function submit(e) {
@@ -45,21 +43,20 @@ export default function SetupPage() {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
       email: form.email.trim(), password: form.password,
-      options: { data: { display_name: form.name.trim() }, emailRedirectTo: `${location.origin}/auth/callback?next=/setup` },
+      options: { data: { display_name: form.name.trim() }, emailRedirectTo: `${location.origin}${BASE}/setup/` },
     });
     if (error) { setBusy(false); setNote(error.message); return; }
     if (!data.session) { setBusy(false); setNote('Semak email dan sahkan akaun. Kemudian log masuk dan buka /setup untuk melengkapkan setup.'); return; }
-    const result = await fetch('/api/setup', { method: 'POST' });
-    const payload = await result.json();
+    const { error: perr } = await supabase.rpc('promote_first_admin');
     setBusy(false);
-    if (!result.ok) { setState(payload.available ? 'available' : 'closed'); setNote(payload.error || 'Setup tidak berjaya.'); return; }
-    location.assign('/');
+    if (perr) { setState('closed'); setNote('Setup gagal atau admin pertama sudah diwujudkan.'); return; }
+    go('/');
   }
 
   return <main className="auth"><section className="card auth-card">
     <h1>Setup IT-Tiket</h1>
     {state === 'loading' && <p className="muted">Memeriksa status setup…</p>}
-    {state === 'closed' && <><p>Setup pertama sudah selesai. Sila log masuk.</p><a href="/login">Ke halaman log masuk</a></>}
+    {state === 'closed' && <><p>Setup pertama sudah selesai. Sila log masuk.</p><a href={`${BASE}/login/`}>Ke halaman log masuk</a></>}
     {state === 'error' && <p className="error">Tidak dapat menyemak status setup. Cuba lagi kemudian.</p>}
     {state === 'confirm' && <>
       <p>Akaun ini sudah log masuk. Sahkan untuk menjadikannya admin pertama. Selepas itu wizard ditutup.</p>

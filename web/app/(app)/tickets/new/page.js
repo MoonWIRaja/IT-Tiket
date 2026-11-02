@@ -25,7 +25,7 @@ export default function NewTicket() {
       for (const file of f.getAll('files')) {
         if (file.size) await uploadFile(supabase, { file, ticketId: ticket.id, userId: user.id, internal: false });
       }
-      router.push(`/tickets/${ticket.id}`);
+      router.push(`/tickets/view/?id=${ticket.id}`);
     } catch (err) {
       setError(err.message); setBusy(false);
     }
