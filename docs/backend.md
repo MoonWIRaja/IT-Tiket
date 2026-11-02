@@ -90,3 +90,10 @@ menerima baris yang rol mereka boleh baca (RLS digunai per subscriber).
 3. TURN server (coturn) atau LiveKit untuk panggilan melintasi NAT; keputusan deploy.
 4. Matriks permission per tindakan yang boleh diurus admin di UI; start dengan Kid + Gok.
 5. Review keselamatan Gok: audit + probe kebocoran RLS (toolbox harness sebagai pintu).
+
+## Closed-ticket privacy, admin reopen, IT-first chat (migration 20261102170000)
+
+- A `closed` ticket is hidden from its employee requester at the database level: messages, attachments (rows and storage files), call logs and call signalling. The ticket row itself stays visible (status only). IT/Admin keep full access.
+- Only an Admin can move a ticket out of `closed`; IT and employees are refused. Employees may still reopen a `resolved` ticket within 14 days. Close and reopen are audited as `ticket_closed` / `ticket_reopened` (actor, from, to).
+- An employee can send messages or attach to a message only after IT/Admin posted a public message in that ticket (`ticket_chat_started()`). Calls and call signaling are unavailable to every role until that public staff message exists, and all calls are blocked while a ticket is closed. Initial attachments without a message stay allowed for the new-ticket form.
+- Test (no cloud, no Docker): `cd toolbox/db-tests; npm install; npm test` runs every migration in an in-process Postgres (PGlite) with stubs for auth/storage/realtime.

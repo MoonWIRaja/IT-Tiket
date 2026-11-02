@@ -1,0 +1,1 @@
+{ "name": "it-tiket-db-tests", "private": true, "type": "module", "scripts": { "test": "node chat-privacy.mjs" }, "devDependencies": { "@electric-sql/pglite": "^0.3.0" } }

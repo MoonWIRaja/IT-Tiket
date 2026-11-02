@@ -18,9 +18,9 @@ export function UsersTable({ users, me, onChanged }) {
         badge={(u) => <span className="pill">{ROLE[u.role]}</span>}
         detail={(u) => <>
           <Fact label="Email">{u.email}</Fact>
-          <label>Role<select value={u.role} onChange={async (e) => setError(await setRole(u.id, e.target.value))}>
+          <label>Role<select value={u.role} onChange={(e) => run('admin_set_role', { target: u.id, new_role: e.target.value })}>
             {Object.entries(ROLE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-          <button disabled={u.id === me} onClick={async () => setError(await setActive(u.id, !u.active))}>{u.active ? 'Deactivate' : 'Activate'}</button>
+          <button disabled={u.id === me} onClick={() => run('admin_set_active', { target: u.id, is_active: !u.active })}>{u.active ? 'Deactivate' : 'Activate'}</button>
         </>} />
       <table className="card desk-only">
         <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
