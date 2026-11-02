@@ -50,7 +50,7 @@ export default function Profile() {
   return (
     <>
       <h1>Profile</h1>
-      <div className="stack narrow">
+      <div className="profile-grid">
         <section className="card profile-head">
           <Avatar profile={profile} size={84} />
           <div className="stack">

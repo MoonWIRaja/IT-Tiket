@@ -7,6 +7,7 @@ import { Logo } from './Logo';
 import { Avatar } from './Avatar';
 
 const ICONS = {
+  chat: 'M4 5h16v11H9l-5 4z',
   list: 'M4 6h16M4 12h16M4 18h10',
   plus: 'M12 5v14M5 12h14',
   chart: 'M5 20V11M12 20V5M19 20v-6',
@@ -19,6 +20,7 @@ export function Sidebar({ profile }) {
   const { role } = profile;
   const links = [
     role !== 'atasan' && ['/tickets/', 'Tickets', 'list'],
+    role !== 'atasan' && ['/chats/', 'Chats', 'chat'],
     role !== 'atasan' && ['/tickets/new/', 'New', 'plus'],
     role !== 'karyawan' && ['/reports/', 'Reports', 'chart'],
     isStaff(role) && ['/admin/audit/', 'Audit', 'log'],

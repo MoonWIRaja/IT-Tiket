@@ -6,12 +6,14 @@ const ICE = process.env.NEXT_PUBLIC_ICE_SERVERS
   ? JSON.parse(process.env.NEXT_PUBLIC_ICE_SERVERS)
   : [{ urls: 'stun:stun.l.google.com:19302' }];
 
-// 1:1 voice call. Signalling uses a Realtime broadcast channel; the call row is the log.
-export function CallPanel({ supabase, ticketId, profile, disabled }) {
+// 1:1 voice or video call. Signalling uses a Realtime broadcast channel; the call row is the log.
+export function CallPanel({ supabase, ticketId, profile, canStart }) {
   const [state, setState] = useState('idle'); // idle | ringing | calling | live
   const [error, setError] = useState(null);
   const refs = useRef({ channel: null, pc: null, stream: null, sessionId: null, offer: null, pending: [] });
-  const audio = useRef(null);
+  const remote = useRef(null);
+  const local = useRef(null);
+  const [video, setVideo] = useState(false);
   const send = (event, payload = {}) =>
     refs.current.channel?.send({ type: 'broadcast', event, payload: { ...payload, from: profile.id } });
 
@@ -21,15 +23,17 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
     r.stream?.getTracks().forEach((t) => t.stop());
     Object.assign(r, { pc: null, stream: null, sessionId: null, offer: null, pending: [] });
     setState('idle');
+    setVideo(false);
   }
 
-  async function peer() {
+  async function peer(withVideo) {
     const r = refs.current;
-    r.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    r.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: withVideo });
+    if (local.current) local.current.srcObject = withVideo ? r.stream : null;
     const pc = new RTCPeerConnection({ iceServers: ICE });
     r.stream.getTracks().forEach((t) => pc.addTrack(t, r.stream));
     pc.onicecandidate = (e) => e.candidate && send('ice', { candidate: e.candidate });
-    pc.ontrack = (e) => { audio.current.srcObject = e.streams[0]; };
+    pc.ontrack = (e) => { remote.current.srcObject = e.streams[0]; };
     pc.onconnectionstatechange = () => { if (pc.connectionState === 'connected') setState('live'); };
     r.pc = pc;
     return pc;
@@ -44,7 +48,7 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
       if (supabase.realtime?.setAuth) await supabase.realtime.setAuth();
       if (cancelled) return;
       channel = supabase.channel(`call:${ticketId}`, { config: { private: true, broadcast: { self: false } } })
-      .on('broadcast', { event: 'offer' }, mine((p) => { r.offer = p; setState('ringing'); }))
+      .on('broadcast', { event: 'offer' }, mine((p) => { r.offer = p; setVideo(!!p.video); setState('ringing'); }))
       .on('broadcast', { event: 'answer' }, mine(async (p) => {
         await r.pc?.setRemoteDescription(p.sdp);
         for (const c of r.pending.splice(0)) await r.pc.addIceCandidate(c);
@@ -67,17 +71,18 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, ticketId, profile.id]);
 
-  async function start() {
+  async function start(withVideo) {
     setError(null);
+    setVideo(withVideo);
     try {
       const { data, error: err } = await supabase.from('call_sessions')
         .insert({ ticket_id: ticketId, started_by: profile.id }).select('id').single();
       if (err) throw err;
       refs.current.sessionId = data.id;
       setState('calling');
-      const pc = await peer();
+      const pc = await peer(withVideo);
       await pc.setLocalDescription(await pc.createOffer());
-      send('offer', { sdp: pc.localDescription, sessionId: data.id });
+      send('offer', { sdp: pc.localDescription, sessionId: data.id, video: withVideo });
     } catch (e) { setError(e.message); hangup(); }
   }
 
@@ -85,9 +90,10 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
     setError(null);
     const r = refs.current;
     try {
-      const { sdp, sessionId } = r.offer;
+      const { sdp, sessionId, video: withVideo } = r.offer;
       r.sessionId = sessionId;
-      const pc = await peer();
+      setState('calling');
+      const pc = await peer(!!withVideo);
       await pc.setRemoteDescription(sdp);
       for (const c of r.pending.splice(0)) await pc.addIceCandidate(c);
       await pc.setLocalDescription(await pc.createAnswer());
@@ -102,22 +108,27 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
     if (id) await supabase.from('call_sessions').update({ ended_at: new Date().toISOString() }).eq('id', id);
   }
 
+  const busy = state !== 'idle';
   return (
-    <div className="card stack">
-      <strong>Voice call</strong>
-      <audio ref={audio} autoPlay />
-      {state === 'idle' && <button disabled={disabled} onClick={start}>Start call</button>}
-      {state === 'ringing' && (
-        <motion.div className="row" animate={{ scale: [1, 1.03, 1] }} transition={{ repeat: Infinity, duration: 1.2 }}>
-          <button className="primary" onClick={accept}>Answer</button>
-          <button onClick={hangup}>Decline</button>
-        </motion.div>
-      )}
-      {(state === 'calling' || state === 'live') && <>
-        <span className="muted">{state === 'live' ? 'In call' : 'Calling…'}</span>
-        <button className="danger" onClick={hangup}>End</button>
-      </>}
+    <>
+      {canStart && !busy && <div className="row call-buttons">
+        <button onClick={() => start(false)}>Call</button>
+        <button onClick={() => start(true)}>Video</button>
+      </div>}
       {error && <p className="error">{error}</p>}
-    </div>
+      <div className={`call-stage ${busy ? 'open' : ''} ${video ? 'video' : ''}`}>
+        <video ref={remote} autoPlay playsInline className="remote" />
+        <video ref={local} autoPlay playsInline muted className="local" />
+        <div className="call-bar">
+          <span>{state === 'live' ? 'In call' : state === 'ringing' ? `Incoming ${video ? 'video ' : ''}call` : 'Calling…'}</span>
+          {state === 'ringing'
+            ? <motion.div className="row" animate={{ scale: [1, 1.04, 1] }} transition={{ repeat: Infinity, duration: 1.2 }}>
+                <button className="primary" onClick={accept}>Answer</button>
+                <button onClick={hangup}>Decline</button>
+              </motion.div>
+            : <button className="danger" onClick={hangup}>End</button>}
+        </div>
+      </div>
+    </>
   );
 }

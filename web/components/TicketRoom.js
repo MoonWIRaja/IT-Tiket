@@ -72,6 +72,8 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
     window.open(data.signedUrl, '_blank', 'noopener');
   }
 
+  // Only IT or above can open the chat; until then the employee just waits.
+  const started = staff || messages.some((m) => m.author_id !== ticket.requester_id);
   const closed = ticket.status === 'resolved' || ticket.status === 'closed';
   const canReopen = closed && !staff && Date.now() - new Date(ticket.closed_at ?? ticket.updated_at) < 14 * 864e5;
 
@@ -80,7 +82,10 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
       <section className="thread card">
         <header>
           <small className="muted">{ticketNo(ticket.number)} · {ticket.category}</small>
-          <h1>{ticket.title}</h1>
+          <div className="row spread">
+            <h1>{ticket.title}</h1>
+            <CallPanel supabase={supabase} ticketId={ticket.id} profile={profile} canStart={started && ticket.status !== 'closed'} />
+          </div>
           <p className="prewrap">{ticket.body}</p>
         </header>
         <div className="messages">
@@ -96,8 +101,9 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
           <div ref={end} />
         </div>
         {error && <p className="error">{error}</p>}
-        <form className="composer" onSubmit={send}>
-          <textarea rows={2} maxLength={8000} value={text} placeholder="Write a message" onChange={(e) => setText(e.target.value)} />
+        {!started && <p className="chat-wait">IT will start the chat here. You can reply and call once they do.</p>}
+        {started && <form className="composer" onSubmit={send}>
+          <textarea rows={2} maxLength={8000} value={text} placeholder={staff && !messages.length ? 'Start the chat' : 'Write a message'} onChange={(e) => setText(e.target.value)} />
           <div className="row spread">
             <div className="row">
               <label className="file button">Attachments
@@ -107,7 +113,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
             </div>
             <button className="primary">Send</button>
           </div>
-        </form>
+        </form>}
       </section>
 
       <aside className="stack">
@@ -132,7 +138,6 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
           {canReopen && <button onClick={() => update({ status: 'in_progress' })}>Reopen</button>}
           <small className="muted">Created {when(ticket.created_at)}</small>
         </div>
-        <CallPanel supabase={supabase} ticketId={ticket.id} profile={profile} disabled={ticket.status === 'closed'} />
         <div className="card stack">
           <strong>Attachments</strong>
           {files.length === 0 && <span className="muted">None</span>}

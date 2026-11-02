@@ -112,3 +112,19 @@ tbody tr{animation:rise .3s ease-out backwards}tbody tr:nth-child(2){animation-d
   .composer textarea{min-height:44px}
   .room aside{order:2}
 }
+
+.narrow{max-width:1080px}
+.profile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;max-width:1080px;align-items:start}
+.chat-list{display:grid;gap:10px;max-width:1080px}
+.chat-row{display:flex;justify-content:space-between;gap:14px;text-decoration:none;padding:13px 16px}.chat-row:hover{background:var(--raise)}
+.chat-row b{display:block}.chat-row small{overflow-wrap:anywhere}.chat-meta{display:grid;justify-items:end;gap:3px;flex:none}
+.chat-wait{padding:12px 14px;border-radius:12px;background:var(--raise);color:var(--mute);text-align:center}
+.call-buttons{flex:none}.call-buttons button{padding:6px 12px;font-size:13px}
+.call-stage{display:none;position:fixed;z-index:40;right:20px;bottom:20px;width:300px;background:#0d1424;color:#fff;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgb(0 0 0/.4)}
+.call-stage.open{display:block}.call-stage.video{inset:16px;width:auto}
+.call-stage video{display:none}.call-stage.video video{display:block}
+.call-stage .remote{width:100%;height:100%;object-fit:cover;background:#000}
+.call-stage .local{position:absolute;top:12px;right:12px;width:min(26%,180px);border-radius:12px;background:#1b2438}
+.call-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px}
+.call-stage.video .call-bar{position:absolute;inset:auto 0 0;background:rgb(0 0 0/.5)}.call-bar button{color:#14213a}
+@media(max-width:800px){.profile-grid{grid-template-columns:1fr}.call-stage{right:10px;left:10px;bottom:84px;width:auto}.call-stage.video{inset:0;border-radius:0}.chat-meta small{display:none}}
