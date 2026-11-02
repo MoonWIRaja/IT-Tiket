@@ -218,3 +218,11 @@ tbody tr{animation:rise .3s ease-out backwards}tbody tr:nth-child(2){animation-d
   .nav svg,.nav.on svg{transform:none}.nav svg{transition:none}
   .nav{height:52px}.nav.on{color:#fff;transform:translateY(-4px)}
 }
+html{-webkit-text-size-adjust:100%;touch-action:manipulation}
+body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+@media(max-width:800px){
+  input,select,textarea,.filters input,.filters select{font-size:16px!important}
+  .nav,button,.row-item{-webkit-user-select:none;user-select:none}
+  .topbar{height:calc(58px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top)}
+  .shell{padding-top:calc(58px + env(safe-area-inset-top))}
+}

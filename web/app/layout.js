@@ -2,6 +2,8 @@ import './globals.css';
 
 const base = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
+export const viewport = { width: 'device-width', initialScale: 1, maximumScale: 1, userScalable: false, viewportFit: 'cover' };
+
 export const metadata = { appleWebApp: { capable: true, title: 'IT-Tiket', statusBarStyle: 'black-translucent' }, icons: { apple: `${base}/icon-192.png` }, title: 'IT-Tiket', description: 'IT support ticket system', manifest: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/manifest.webmanifest`, themeColor: '#2563eb' };
 
 // Runs before paint so a saved dark theme does not flash light.
