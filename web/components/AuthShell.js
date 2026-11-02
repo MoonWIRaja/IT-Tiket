@@ -1,3 +1,5 @@
+import { ThemeToggle } from './ThemeToggle';
+
 export function AuthShell({ children }) {
   return (
     <main className="auth-split">
@@ -8,7 +10,7 @@ export function AuthShell({ children }) {
           <p>Raise a ticket, chat with IT and follow it through to resolution.</p>
         </div>
       </section>
-      <section className="auth-panel">{children}</section>
+      <section className="auth-panel"><ThemeToggle />{children}</section>
     </main>
   );
 }

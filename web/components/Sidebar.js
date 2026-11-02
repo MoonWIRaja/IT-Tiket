@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { go } from '@/lib/base';
 import { ROLE, isStaff } from '@/lib/labels';
+import { ThemeToggle } from './ThemeToggle';
 
 export function Sidebar({ profile }) {
   const path = usePathname();
@@ -38,6 +39,7 @@ export function Sidebar({ profile }) {
         <div>{profile.display_name}</div>
         <small className="muted">{ROLE[role]}</small>
         <button className="link" onClick={logout}>Sign out</button>
+        <ThemeToggle />
       </div>
     </aside>
   );
