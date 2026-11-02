@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { BASE, go } from '@/lib/base';
+import { VerifyCode } from '@/components/VerifyCode';
 import { createClient } from '@/lib/supabase/client';
 import { AuthShell } from '@/components/AuthShell';
 
@@ -44,15 +45,17 @@ export default function SetupPage() {
     const supabase = createClient();
     const { data, error } = await supabase.auth.signUp({
       email: form.email.trim(), password: form.password,
-      options: { data: { display_name: form.name.trim() }, emailRedirectTo: `${location.origin}${BASE}/setup/` },
+      options: { data: { display_name: form.name.trim() } },
     });
     if (error) { setBusy(false); setNote(error.message); return; }
-    if (!data.session) { setBusy(false); setNote('Check your email and confirm your account, then come back to this page to finish setup.'); return; }
+    if (!data.session) { setBusy(false); setState('verify'); return; }
     const { error: perr } = await supabase.rpc('promote_first_admin');
     setBusy(false);
     if (perr) { setState('closed'); setNote('Setup failed, or the first admin already exists.'); return; }
     go('/');
   }
+
+  if (state === 'verify') return <AuthShell><VerifyCode email={form.email.trim()} type="signup" onVerified={finish} onBack={() => setState('available')} /></AuthShell>;
 
   return <AuthShell><section className="auth-form">
     <h2>Set up IT-Tiket</h2>
@@ -65,7 +68,7 @@ export default function SetupPage() {
       <button className="primary" disabled={busy} onClick={finish}>{busy ? 'Setting up…' : 'Make me the first admin'}</button>
     </>}
     {state === 'available' && <>
-      <p className="muted">Create the owner account. It becomes the admin, after email confirmation if required.</p>
+      <p className="muted">Create the owner account. It becomes the admin, after you verify your email.</p>
       <form className="stack" onSubmit={submit}>
         <label>Name<input required maxLength={120} autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
         <label>Email<input type="email" required autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>

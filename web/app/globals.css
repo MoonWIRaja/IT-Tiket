@@ -74,3 +74,9 @@ code{font-size:12px;overflow-wrap:anywhere}
 tbody tr{animation:rise .3s ease-out backwards}tbody tr:nth-child(2){animation-delay:.04s}tbody tr:nth-child(3){animation-delay:.08s}tbody tr:nth-child(4){animation-delay:.12s}tbody tr:nth-child(n+5){animation-delay:.16s}
 .card{transition:box-shadow .18s,transform .18s,background .2s}.tile:hover{transform:translateY(-2px)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+.otp em{font-style:normal;color:var(--mint)}
+.otp-boxes{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+.auth-form .otp-boxes input{padding:12px 0;text-align:center;font-size:24px;font-weight:600;border-radius:12px;background:color-mix(in srgb,var(--raise) 70%,transparent);backdrop-filter:blur(6px)}
+.otp-boxes input:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--brand) 30%,transparent)}
+.otp-done{justify-self:center;width:72px;height:72px;display:grid;place-items:center;border-radius:20px;font-size:32px;color:var(--mint);border:2px solid var(--mint);box-shadow:0 0 22px color-mix(in srgb,var(--mint) 40%,transparent)}
