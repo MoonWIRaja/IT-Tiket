@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { FILE_TYPES, MAX_FILE, PRIORITY, STATUS, isStaff, ticketNo, when } from '@/lib/labels';
-import { uploadFile } from '@/lib/upload';
+import { recordFile, storeFile } from '@/lib/upload';
 import { notify } from '@/lib/alerts';
 import { CallPanel } from './CallPanel';
 
@@ -57,7 +57,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
         ({ new: m }) => {
           setMessages((all) => all.some((x) => x.id === m.id) ? all : [...all, m]);
           // Files upload just after their message is saved.
-          [1500, 5000].forEach((ms) => setTimeout(reloadFiles, ms));
+          [400, 1500, 5000].forEach((ms) => setTimeout(reloadFiles, ms));
         })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'tickets', filter: `id=eq.${ticket.id}` },
         async ({ new: t }) => {
@@ -87,18 +87,22 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
     if (!body) return;
     setError(null);
     setSending(true);
+    // Upload first, so the message and its files appear together.
+    let stored = [];
+    try {
+      stored = await Promise.all(pending.map((file) => storeFile(supabase, { file, ticketId: ticket.id, internal })));
+    } catch (x) { setSending(false); return setError(x.message); }
     const { data, error: err } = await supabase.from('ticket_messages').insert({
       ticket_id: ticket.id, author_id: profile.id, body, visibility: internal ? 'internal' : 'public',
     }).select().single();
     if (err) { setSending(false); return setError(err.message); }
     setText('');
-    const queue = pending;
     setPending([]);
-    setMessages((all) => all.some((x) => x.id === data.id) ? all : [...all, data]);
     try {
-      for (const file of queue) await uploadFile(supabase, { file, ticketId: ticket.id, userId: profile.id, internal, messageId: data.id });
+      await Promise.all(stored.map((s) => recordFile(supabase, { stored: s, ticketId: ticket.id, userId: profile.id, messageId: data.id })));
     } catch (x) { setError(x.message); }
     await reloadFiles();
+    setMessages((all) => all.some((x) => x.id === data.id) ? all : [...all, data]);
     setSending(false);
     notify(supabase, 'message', data.id);
   }
@@ -131,7 +135,14 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
   const canReopen = ticket.status === 'resolved' && !staff && Date.now() - new Date(ticket.closed_at ?? ticket.updated_at) < 14 * 864e5;
 
   const hidden = ticket.status === 'closed' && !staff;
-  const looseFiles = files.filter((x) => !x.message_id);
+  // Files sent without a message still belong in the conversation.
+  const timeline = [
+    ...messages,
+    ...files.filter((x) => !x.message_id).map((x) => ({
+      id: x.id, author_id: x.uploaded_by, created_at: x.created_at, loose: x,
+      visibility: x.storage_path.includes('/internal/') ? 'internal' : 'public',
+    })),
+  ].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
 
   return (
     <div className="room">
@@ -168,7 +179,6 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
             <div className="row wrap ticket-meta">
               {staff && <small className="muted">Requester: {names[ticket.requester_id] ?? '—'}</small>}
               <small className="muted">Created {when(ticket.created_at)}</small>
-              {!hidden && looseFiles.map((x) => <FileChip key={x.id} supabase={supabase} file={x} onOpen={open} />)}
               {admin && ticket.status === 'closed' && <button className="primary" onClick={() => update({ status: 'in_progress' })}>Reopen ticket and conversation</button>}
               {canReopen && <button onClick={() => update({ status: 'in_progress' })}>Reopen</button>}
             </div>
@@ -177,12 +187,12 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
         {ticket.status === 'closed' && !staff ? <div className="chat-wait">This ticket is closed. Its conversation and attachments are hidden. An Admin can reopen it if further discussion is needed.</div> : <>
           <div className="messages">
             <AnimatePresence initial={false}>
-              {messages.map((m) => (
+              {timeline.map((m) => (
                 <motion.div key={m.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                   className={`bubble ${m.author_id === profile.id ? 'mine' : ''} ${m.visibility === 'internal' ? 'internal' : ''}`}>
                   <small>{author(m.author_id)}{m.visibility === 'internal' && ' · internal note'} · {when(m.created_at)}</small>
-                  {files.filter((x) => x.message_id === m.id).map((x) => <FileChip key={x.id} supabase={supabase} file={x} onOpen={open} />)}
-                  {m.body !== files.filter((x) => x.message_id === m.id).map((x) => x.original_name).join(', ') && <p className="prewrap">{m.body}</p>}
+                  {(m.loose ? [m.loose] : files.filter((x) => x.message_id === m.id)).map((x) => <FileChip key={x.id} supabase={supabase} file={x} onOpen={open} />)}
+                  {m.body && m.body !== files.filter((x) => x.message_id === m.id).map((x) => x.original_name).join(', ') && <p className="prewrap">{m.body}</p>}
                 </motion.div>
               ))}
             </AnimatePresence>
