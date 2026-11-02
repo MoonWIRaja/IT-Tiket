@@ -199,3 +199,5 @@ tbody tr{animation:rise .3s ease-out backwards}tbody tr:nth-child(2){animation-d
   .page-head{justify-content:flex-end}
   .page-head>.row{width:100%}.page-head>.row button{flex:1;padding:8px 10px;font-size:14px}
 }
+@media(min-width:801px){.profile-grid>.danger{grid-column:3;grid-row:2;align-self:end}}
+@media(max-width:800px){.nav-on,.nav.main .nav-on{top:-22px}.nav.on svg{transform:translateY(-19px)}}
