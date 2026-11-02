@@ -17,7 +17,7 @@ export function AppGate({ children }) {
       if (!session) return router.replace('/login/');
       const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
       if (!data) return router.replace('/login/');
-      setProfile(data);
+      setProfile({ ...data, avatar: session.user.user_metadata?.avatar_url ?? null });
     })();
   }, [router]);
   if (profile === undefined) return <main className="auth"><p className="muted">Loading…</p></main>;

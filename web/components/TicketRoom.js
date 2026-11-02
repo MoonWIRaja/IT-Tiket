@@ -17,7 +17,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
   const end = useRef(null);
   const staff = isStaff(profile.role);
   const names = Object.fromEntries(people.map((p) => [p.id, p.display_name]));
-  const author = (id) => id === profile.id ? 'You' : names[id] ?? (staff ? 'Users' : 'IT Support');
+  const author = (id) => id === profile.id ? 'You' : names[id] ?? (staff ? 'User' : 'IT Support');
 
   const reloadFiles = async () => {
     const { data } = await supabase.from('ticket_attachments').select('*').eq('ticket_id', ticket.id).order('created_at');

@@ -41,17 +41,17 @@ export default function Tickets() {
         <button>Filter</button>
       </form>
       {error && <p className="error">{error.message}</p>}
-      <table className="card">
+      <table className="card cards">
         <thead><tr><th>No.</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead>
         <tbody>
           {tickets?.map((t) => (
             <tr key={t.id}>
               <td><Link href={`/tickets/view/?id=${t.id}`}>{ticketNo(t.number)}</Link></td>
               <td><Link href={`/tickets/view/?id=${t.id}`}>{t.title}</Link></td>
-              <td>{t.category}</td>
-              <td><span className={`pill p-${t.priority}`}>{PRIORITY[t.priority]}</span></td>
-              <td><span className={`pill s-${t.status}`}>{STATUS[t.status]}</span></td>
-              <td>{when(t.updated_at)}</td>
+              <td data-label="Category">{t.category}</td>
+              <td data-label="Priority"><span className={`pill p-${t.priority}`}>{PRIORITY[t.priority]}</span></td>
+              <td data-label="Status"><span className={`pill s-${t.status}`}>{STATUS[t.status]}</span></td>
+              <td data-label="Updated">{when(t.updated_at)}</td>
             </tr>
           ))}
           {tickets?.length === 0 && <tr><td colSpan={6} className="muted">No tickets.</td></tr>}
