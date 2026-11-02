@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useProfile } from '@/components/AppGate';
 import { Avatar } from '@/components/Avatar';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { GetApp } from '@/components/GetApp';
 
 // Shrinks to a small JPEG: the picture lives in the Auth user metadata.
 async function shrink(file) {
@@ -67,12 +68,7 @@ export default function Profile() {
           {note && <p className={note.bad ? 'error' : 'ok'}>{note.text}</p>}
           <button className="primary">Save</button>
         </form>
-        <section className="card stack">
-          <strong>Get the app</strong>
-          {['Desktop', 'Android', 'iPhone'].map((name) => (
-            <div key={name} className="row spread"><span>{name}</span><button disabled>Coming soon</button></div>
-          ))}
-        </section>
+        <GetApp />
         <section className="card row spread"><span>Appearance</span><ThemeToggle /></section>
         <button className="danger" onClick={signOut}>Sign out</button>
       </div>

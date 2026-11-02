@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ROLE, isStaff } from '@/lib/labels';
@@ -18,6 +19,13 @@ const ICONS = {
 
 export function Sidebar({ profile }) {
   const path = usePathname();
+  const [mini, setMini] = useState(false);
+  useEffect(() => { setMini(localStorage.getItem('nav') === 'mini'); }, []);
+  useEffect(() => { document.documentElement.dataset.nav = mini ? 'mini' : 'full'; }, [mini]);
+  function toggle() {
+    localStorage.setItem('nav', mini ? 'full' : 'mini');
+    setMini(!mini);
+  }
   const { role } = profile;
   const links = [
     isStaff(role) && ['/tickets/', 'Tickets', 'list'],
@@ -38,17 +46,20 @@ export function Sidebar({ profile }) {
         <Link href="/profile/" aria-label="Profile"><Avatar profile={profile} size={34} /></Link>
       </header>
       <aside className="sidebar">
-        <strong className="brand"><Logo size={26} /></strong>
+        <div className="side-head">
+          <strong className="brand"><Logo size={26} /></strong>
+          <button type="button" className="nav-toggle" onClick={toggle} aria-label={mini ? 'Expand menu' : 'Collapse menu'} aria-expanded={!mini}>{mini ? '»' : '«'}</button>
+        </div>
         <nav>
           {links.map(([href, label, icon]) => (
             <Link key={href} href={href} className={`nav ${icon === 'chat' ? 'main' : ''} ${active === href ? 'on' : ''} ${icon === 'user' ? 'mobile-only' : ''}`}>
               {active === href && <motion.span layoutId="nav" className="nav-on" />}
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICONS[icon]} /></svg>
-              <span>{label}</span>
+              <span className="nav-label">{label}</span>
             </Link>
           ))}
         </nav>
-        <Link href="/profile/" className="me">
+        <Link href="/profile/" className="me" title="Profile">
           <Avatar profile={profile} size={38} />
           <span><b>{profile.display_name}</b><small>{ROLE[role]}</small></span>
         </Link>

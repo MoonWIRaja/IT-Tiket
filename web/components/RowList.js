@@ -9,6 +9,7 @@ export function RowList({ items, id, title, sub, badge, href, detail }) {
   const current = items.find((x) => id(x) === open);
   return (
     <>
+      {items.length === 0 && <p className="card muted mobile-block">Nothing here yet.</p>}
       <div className="rows mobile-block">
         {items.map((x) => {
           const body = <><span className="row-text"><b>{title(x)}</b><small>{sub(x)}</small></span>{badge?.(x)}</>;

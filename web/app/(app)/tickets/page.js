@@ -29,7 +29,7 @@ export default function Tickets() {
   return (
     <>
       <LiveRefresh onChange={load} />
-      <header className="row spread">
+      <header className="row spread page-head">
         <h1>{isStaff(profile.role) ? 'All tickets' : 'My tickets'}</h1>
         <Link className="button primary" href="/tickets/new/">New ticket</Link>
       </header>
