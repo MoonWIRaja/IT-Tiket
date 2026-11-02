@@ -24,8 +24,8 @@ function Ticket() {
       setData({ ticket, messages: messages.data ?? [], files: files.data ?? [], people: staff.data ?? [] });
     })();
   }, [id, profile]);
-  if (data === undefined) return <p className="muted">Memuatkan...</p>;
-  if (data === null) return <p className="error">Tiket tidak dijumpai.</p>;
+  if (data === undefined) return <p className="muted">Loading…</p>;
+  if (data === null) return <p className="error">Ticket not found.</p>;
   return <TicketRoom key={data.ticket.id} profile={profile} initialTicket={data.ticket}
     initialMessages={data.messages} initialFiles={data.files} people={data.people} />;
 }

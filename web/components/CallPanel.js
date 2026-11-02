@@ -55,7 +55,7 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
       }))
       .on('broadcast', { event: 'hangup' }, mine(() => cleanup()))
       .subscribe((status) => {
-        if (status === 'CHANNEL_ERROR') setError('Panggilan tidak dibenarkan untuk akaun ini.');
+        if (status === 'CHANNEL_ERROR') setError('Calls are not allowed for this account.');
       });
       r.channel = channel;
     })();
@@ -104,18 +104,18 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
 
   return (
     <div className="card stack">
-      <strong>Panggilan suara</strong>
+      <strong>Voice call</strong>
       <audio ref={audio} autoPlay />
-      {state === 'idle' && <button disabled={disabled} onClick={start}>Mula panggilan</button>}
+      {state === 'idle' && <button disabled={disabled} onClick={start}>Start call</button>}
       {state === 'ringing' && (
         <motion.div className="row" animate={{ scale: [1, 1.03, 1] }} transition={{ repeat: Infinity, duration: 1.2 }}>
-          <button className="primary" onClick={accept}>Jawab</button>
-          <button onClick={hangup}>Tolak</button>
+          <button className="primary" onClick={accept}>Answer</button>
+          <button onClick={hangup}>Decline</button>
         </motion.div>
       )}
       {(state === 'calling' || state === 'live') && <>
-        <span className="muted">{state === 'live' ? 'Sedang bercakap' : 'Memanggil…'}</span>
-        <button className="danger" onClick={hangup}>Tamat</button>
+        <span className="muted">{state === 'live' ? 'In call' : 'Calling…'}</span>
+        <button className="danger" onClick={hangup}>End</button>
       </>}
       {error && <p className="error">{error}</p>}
     </div>

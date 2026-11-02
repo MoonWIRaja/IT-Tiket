@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { BASE, go } from '@/lib/base';
 import { createClient } from '@/lib/supabase/client';
+import { AuthShell } from '@/components/AuthShell';
 
 export default function SetupPage() {
   const [state, setState] = useState('loading');
@@ -18,7 +19,7 @@ export default function SetupPage() {
         if (aerr) throw aerr;
         const status = { available: avail === true };
         if (dead) return;
-        if (!status.available) { setState('closed'); return; }
+        if (!status.available) { setState('closed'); go('/login/'); return; }
         const { data: { session } } = await createClient().auth.getSession();
         if (dead) return;
         setState(session ? 'confirm' : 'available');
@@ -33,7 +34,7 @@ export default function SetupPage() {
     setBusy(true); setNote('');
     const { error } = await createClient().rpc('promote_first_admin');
     setBusy(false);
-    if (error) { setNote('Setup gagal atau admin pertama sudah diwujudkan.'); setState('closed'); return; }
+    if (error) { setNote('Setup failed, or the first admin already exists.'); setState('closed'); return; }
     go('/');
   }
 
@@ -46,32 +47,32 @@ export default function SetupPage() {
       options: { data: { display_name: form.name.trim() }, emailRedirectTo: `${location.origin}${BASE}/setup/` },
     });
     if (error) { setBusy(false); setNote(error.message); return; }
-    if (!data.session) { setBusy(false); setNote('Semak email dan sahkan akaun. Kemudian log masuk dan buka /setup untuk melengkapkan setup.'); return; }
+    if (!data.session) { setBusy(false); setNote('Check your email and confirm your account, then come back to this page to finish setup.'); return; }
     const { error: perr } = await supabase.rpc('promote_first_admin');
     setBusy(false);
-    if (perr) { setState('closed'); setNote('Setup gagal atau admin pertama sudah diwujudkan.'); return; }
+    if (perr) { setState('closed'); setNote('Setup failed, or the first admin already exists.'); return; }
     go('/');
   }
 
-  return <main className="auth"><section className="card auth-card">
-    <h1>Setup IT-Tiket</h1>
-    {state === 'loading' && <p className="muted">Memeriksa status setup…</p>}
-    {state === 'closed' && <><p>Setup pertama sudah selesai. Sila log masuk.</p><a href={`${BASE}/login/`}>Ke halaman log masuk</a></>}
-    {state === 'error' && <p className="error">Tidak dapat menyemak status setup. Cuba lagi kemudian.</p>}
+  return <AuthShell><section className="auth-form">
+    <h2>Set up IT-Tiket</h2>
+    {state === 'loading' && <p className="muted">Checking setup status…</p>}
+    {state === 'closed' && <><p>Setup is complete. Redirecting to sign in…</p><a href={`${BASE}/login/`}>Go to sign in</a></>}
+    {state === 'error' && <p className="error">Could not check setup status. Please try again later.</p>}
     {state === 'confirm' && <>
-      <p>Akaun ini sudah log masuk. Sahkan untuk menjadikannya admin pertama. Selepas itu wizard ditutup.</p>
+      <p>You are signed in. Confirm to make this account the first admin. Setup then closes.</p>
       {note && <p className="error">{note}</p>}
-      <button className="primary" disabled={busy} onClick={finish}>{busy ? 'Sedang menyediakan…' : 'Jadikan admin pertama'}</button>
+      <button className="primary" disabled={busy} onClick={finish}>{busy ? 'Setting up…' : 'Make me the first admin'}</button>
     </>}
     {state === 'available' && <>
-      <p className="muted">Cipta akaun pemilik pertama. Akaun ini akan menjadi admin selepas pengesahan email jika diperlukan.</p>
+      <p className="muted">Create the owner account. It becomes the admin, after email confirmation if required.</p>
       <form className="stack" onSubmit={submit}>
-        <label>Nama<input required maxLength={120} autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
+        <label>Name<input required maxLength={120} autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></label>
         <label>Email<input type="email" required autoComplete="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></label>
-        <label>Kata laluan<input type="password" minLength={8} required autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
+        <label>Password<input type="password" minLength={8} required autoComplete="new-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></label>
         {note && <p className="error">{note}</p>}
-        <button className="primary" disabled={busy}>{busy ? 'Sedang menyediakan…' : 'Cipta admin pertama'}</button>
+        <button className="primary" disabled={busy}>{busy ? 'Setting up…' : 'Create first admin'}</button>
       </form>
     </>}
-  </section></main>;
+  </section></AuthShell>;
 }

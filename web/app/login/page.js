@@ -1,15 +1,25 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BASE, go } from '@/lib/base';
 import { createClient } from '@/lib/supabase/client';
+import { AuthShell } from '@/components/AuthShell';
 
 export default function Login() {
   const [mode, setMode] = useState('signin');
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [note, setNote] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  // Until the first admin exists, setup comes before login.
+  useEffect(() => {
+    createClient().rpc('setup_is_available').then(({ data }) => {
+      if (data === true) go('/setup/');
+      else setReady(true);
+    });
+  }, []);
 
   async function submit(e) {
     e.preventDefault();
@@ -24,30 +34,34 @@ export default function Login() {
     setBusy(false);
     if (error) return setNote({ bad: true, text: error.message });
     if (data?.session) return go('/');
-    setNote({ text: 'Semak email anda untuk pautan masuk.' });
+    setNote({ text: 'Check your email for a sign-in link.' });
   }
 
+  if (!ready) return <AuthShell><p className="muted">Loading…</p></AuthShell>;
+
   return (
-    <main className="auth">
-      <motion.form className="card auth-card" onSubmit={submit}
-        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-        <h1>IT-Tiket</h1>
-        <p className="muted">{mode === 'signup' ? 'Daftar akaun karyawan' : 'Masuk ke akaun anda'}</p>
-        {mode === 'signup' && <label>Nama<input required value={form.name} onChange={set('name')} /></label>}
+    <AuthShell>
+      <motion.form className="auth-form" onSubmit={submit} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+        <div>
+          <h2>{mode === 'signup' ? 'Create your account' : 'Welcome back'}</h2>
+          <p className="muted">{mode === 'signup' ? 'Register as an employee' : 'Sign in to your account'}</p>
+        </div>
+        {mode === 'signup' && <label>Name<input required autoComplete="name" value={form.name} onChange={set('name')} /></label>}
         <label>Email<input type="email" required autoComplete="email" value={form.email} onChange={set('email')} /></label>
-        {mode !== 'magic' && <label>Kata laluan
-          <input type="password" required minLength={8} value={form.password} onChange={set('password')} /></label>}
+        {mode !== 'magic' && <label>Password
+          <input type="password" required minLength={8} value={form.password} onChange={set('password')}
+            autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} /></label>}
         {note && <p className={note.bad ? 'error' : 'ok'}>{note.text}</p>}
         <button className="primary" disabled={busy}>
-          {mode === 'signin' ? 'Masuk' : mode === 'signup' ? 'Daftar' : 'Hantar pautan'}
+          {mode === 'signin' ? 'Sign in' : mode === 'signup' ? 'Create account' : 'Send link'}
         </button>
         <div className="row spread">
           <button type="button" className="link" onClick={() => setMode(mode === 'signup' ? 'signin' : 'signup')}>
-            {mode === 'signup' ? 'Sudah ada akaun' : 'Daftar akaun'}</button>
+            {mode === 'signup' ? 'I already have an account' : 'Create an account'}</button>
           <button type="button" className="link" onClick={() => setMode(mode === 'magic' ? 'signin' : 'magic')}>
-            {mode === 'magic' ? 'Guna kata laluan' : 'Masuk dengan pautan email'}</button>
+            {mode === 'magic' ? 'Use password' : 'Email me a link'}</button>
         </div>
       </motion.form>
-    </main>
+    </AuthShell>
   );
 }

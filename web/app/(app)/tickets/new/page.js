@@ -33,19 +33,19 @@ export default function NewTicket() {
 
   return (
     <>
-      <h1>Tiket baru</h1>
+      <h1>New ticket</h1>
       <form className="card stack narrow" onSubmit={submit}>
-        <label>Tajuk<input name="title" required maxLength={200} /></label>
+        <label>Title<input name="title" required maxLength={200} /></label>
         <div className="row">
-          <label>Kategori<select name="category">{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select></label>
-          <label>Keutamaan<select name="priority" defaultValue="normal">
+          <label>Category<select name="category">{CATEGORIES.map((c) => <option key={c}>{c}</option>)}</select></label>
+          <label>Priority<select name="priority" defaultValue="normal">
             {Object.entries(PRIORITY).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
         </div>
-        <label>Masalah<textarea name="body" required rows={7} maxLength={20000} /></label>
-        <label>Lampiran (PNG, JPG, WEBP, PDF, TXT, 10 MB)
+        <label>Problem<textarea name="body" required rows={7} maxLength={20000} /></label>
+        <label>Attachments (PNG, JPG, WEBP, PDF, TXT, 10 MB)
           <input name="files" type="file" multiple accept="image/png,image/jpeg,image/webp,application/pdf,text/plain" /></label>
         {error && <p className="error">{error}</p>}
-        <button className="primary" disabled={busy}>{busy ? 'Menghantar…' : 'Hantar'}</button>
+        <button className="primary" disabled={busy}>{busy ? 'Sending…' : 'Send'}</button>
       </form>
     </>
   );

@@ -17,7 +17,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
   const end = useRef(null);
   const staff = isStaff(profile.role);
   const names = Object.fromEntries(people.map((p) => [p.id, p.display_name]));
-  const author = (id) => id === profile.id ? 'Anda' : names[id] ?? (staff ? 'Pengguna' : 'IT Support');
+  const author = (id) => id === profile.id ? 'You' : names[id] ?? (staff ? 'Users' : 'IT Support');
 
   const reloadFiles = async () => {
     const { data } = await supabase.from('ticket_attachments').select('*').eq('ticket_id', ticket.id).order('created_at');
@@ -88,7 +88,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
             {messages.map((m) => (
               <motion.div key={m.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
                 className={`bubble ${m.author_id === profile.id ? 'mine' : ''} ${m.visibility === 'internal' ? 'internal' : ''}`}>
-                <small>{author(m.author_id)}{m.visibility === 'internal' && ' · nota dalaman'} · {when(m.created_at)}</small>
+                <small>{author(m.author_id)}{m.visibility === 'internal' && ' · internal note'} · {when(m.created_at)}</small>
                 <p className="prewrap">{m.body}</p>
               </motion.div>
             ))}
@@ -97,15 +97,15 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
         </div>
         {error && <p className="error">{error}</p>}
         <form className="composer" onSubmit={send}>
-          <textarea rows={2} maxLength={8000} value={text} placeholder="Tulis mesej" onChange={(e) => setText(e.target.value)} />
+          <textarea rows={2} maxLength={8000} value={text} placeholder="Write a message" onChange={(e) => setText(e.target.value)} />
           <div className="row spread">
             <div className="row">
-              <label className="file button">Lampiran
+              <label className="file button">Attachments
                 <input type="file" multiple hidden onChange={attach} /></label>
               {staff && <label className="check"><input type="checkbox" checked={internal}
-                onChange={(e) => setInternal(e.target.checked)} /> Nota dalaman</label>}
+                onChange={(e) => setInternal(e.target.checked)} /> Internal note</label>}
             </div>
-            <button className="primary">Hantar</button>
+            <button className="primary">Send</button>
           </div>
         </form>
       </section>
@@ -114,28 +114,28 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
         <div className="card stack">
           <div className="row spread"><span className={`pill s-${ticket.status}`}>{STATUS[ticket.status]}</span>
             <span className={`pill p-${ticket.priority}`}>{PRIORITY[ticket.priority]}</span></div>
-          {ticket.source === 'email' && !ticket.sender_verified && <p className="error">Pengirim email tidak disahkan</p>}
+          {ticket.source === 'email' && !ticket.sender_verified && <p className="error">Unverified email sender</p>}
           {staff && <>
             <label>Status<select value={ticket.status} onChange={(e) => update({ status: e.target.value })}>
               {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-            <label>Keutamaan<select value={ticket.priority} onChange={(e) => update({ priority: e.target.value })}>
+            <label>Priority<select value={ticket.priority} onChange={(e) => update({ priority: e.target.value })}>
               {Object.entries(PRIORITY).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-            <label>Ditugaskan kepada<select value={ticket.assignee_id ?? ''} onChange={(e) => update({
+            <label>Assigned to<select value={ticket.assignee_id ?? ''} onChange={(e) => update({
               assignee_id: e.target.value || null,
               ...(e.target.value && ticket.status === 'new' ? { status: 'assigned' } : {}),
             })}>
-              <option value="">Belum ditugaskan</option>
+              <option value="">Unassigned</option>
               {people.filter((p) => isStaff(p.role) && p.active).map((p) => <option key={p.id} value={p.id}>{p.display_name}</option>)}
             </select></label>
-            <p className="muted">Pemohon: {names[ticket.requester_id] ?? '—'}</p>
+            <p className="muted">Requester: {names[ticket.requester_id] ?? '—'}</p>
           </>}
-          {canReopen && <button onClick={() => update({ status: 'in_progress' })}>Buka semula</button>}
-          <small className="muted">Dibuat {when(ticket.created_at)}</small>
+          {canReopen && <button onClick={() => update({ status: 'in_progress' })}>Reopen</button>}
+          <small className="muted">Created {when(ticket.created_at)}</small>
         </div>
         <CallPanel supabase={supabase} ticketId={ticket.id} profile={profile} disabled={ticket.status === 'closed'} />
         <div className="card stack">
-          <strong>Lampiran</strong>
-          {files.length === 0 && <span className="muted">Tiada</span>}
+          <strong>Attachments</strong>
+          {files.length === 0 && <span className="muted">None</span>}
           {files.map((f) => <button key={f.id} className="link left" onClick={() => open(f)}>{f.original_name}</button>)}
         </div>
       </aside>

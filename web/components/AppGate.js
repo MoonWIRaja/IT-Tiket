@@ -20,7 +20,7 @@ export function AppGate({ children }) {
       setProfile(data);
     })();
   }, [router]);
-  if (profile === undefined) return <main className="auth"><p className="muted">Memuatkan...</p></main>;
-  if (!profile.active) return <main className="auth"><p className="card">Akaun anda telah dinyahaktifkan.</p></main>;
+  if (profile === undefined) return <main className="auth"><p className="muted">Loading…</p></main>;
+  if (!profile.active) return <main className="auth"><p className="card">Your account has been deactivated.</p></main>;
   return <Ctx.Provider value={profile}><div className="shell"><Sidebar profile={profile} /><main className="content">{children}</main></div></Ctx.Provider>;
 }

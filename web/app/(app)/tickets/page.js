@@ -29,20 +29,20 @@ export default function Tickets() {
     <>
       <LiveRefresh onChange={load} />
       <header className="row spread">
-        <h1>{isStaff(profile.role) ? 'Semua tiket' : 'Tiket saya'}</h1>
-        <Link className="button primary" href="/tickets/new/">Tiket baru</Link>
+        <h1>{isStaff(profile.role) ? 'All tickets' : 'My tickets'}</h1>
+        <Link className="button primary" href="/tickets/new/">New ticket</Link>
       </header>
       <form className="row filters" onSubmit={(e) => { e.preventDefault(); setApplied(filter); }}>
-        <input placeholder="Cari tajuk" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
+        <input placeholder="Search titles" value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} />
         <select value={filter.status} onChange={(e) => setFilter({ ...filter, status: e.target.value })}>
-          <option value="">Semua status</option>
+          <option value="">All statuses</option>
           {Object.entries(STATUS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
-        <button>Tapis</button>
+        <button>Filter</button>
       </form>
       {error && <p className="error">{error.message}</p>}
       <table className="card">
-        <thead><tr><th>No.</th><th>Tajuk</th><th>Kategori</th><th>Keutamaan</th><th>Status</th><th>Dikemas kini</th></tr></thead>
+        <thead><tr><th>No.</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead>
         <tbody>
           {tickets?.map((t) => (
             <tr key={t.id}>
@@ -54,7 +54,7 @@ export default function Tickets() {
               <td>{when(t.updated_at)}</td>
             </tr>
           ))}
-          {tickets?.length === 0 && <tr><td colSpan={6} className="muted">Tiada tiket.</td></tr>}
+          {tickets?.length === 0 && <tr><td colSpan={6} className="muted">No tickets.</td></tr>}
         </tbody>
       </table>
     </>

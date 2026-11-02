@@ -24,9 +24,9 @@ export default function Audit() {
       <h1>Audit log</h1>
       {error && <p className="error">{error.message}</p>}
       <table className="card">
-        <thead><tr><th>Masa</th><th>Pelaku</th><th>Tindakan</th><th>Entiti</th><th>Butiran</th></tr></thead>
+        <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Details</th></tr></thead>
         <tbody>{data?.map((e) => (
-          <tr key={e.id}><td>{when(e.at)}</td><td>{names[e.actor_id] ?? 'Sistem'}</td><td>{e.action}</td>
+          <tr key={e.id}><td>{when(e.at)}</td><td>{names[e.actor_id] ?? 'System'}</td><td>{e.action}</td>
             <td>{e.entity}</td><td><code>{JSON.stringify(e.meta)}</code></td></tr>
         ))}</tbody>
       </table>

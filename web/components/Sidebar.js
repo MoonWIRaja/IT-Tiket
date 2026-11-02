@@ -10,11 +10,11 @@ export function Sidebar({ profile }) {
   const path = usePathname();
   const { role } = profile;
   const links = [
-    role !== 'atasan' && ['/tickets/', isStaff(role) ? 'Semua tiket' : 'Tiket saya'],
-    role !== 'atasan' && ['/tickets/new/', 'Tiket baru'],
-    role !== 'karyawan' && ['/reports/', 'Laporan'],
+    role !== 'atasan' && ['/tickets/', isStaff(role) ? 'All tickets' : 'My tickets'],
+    role !== 'atasan' && ['/tickets/new/', 'New ticket'],
+    role !== 'karyawan' && ['/reports/', 'Reports'],
     isStaff(role) && ['/admin/audit/', 'Audit log'],
-    role === 'admin' && ['/admin/users/', 'Pengguna'],
+    role === 'admin' && ['/admin/users/', 'Users'],
   ].filter(Boolean);
   const active = links.map(([h]) => h).filter((h) => path.startsWith(h.slice(0, -1))).sort((a, b) => b.length - a.length)[0];
 
@@ -37,7 +37,7 @@ export function Sidebar({ profile }) {
       <div className="me">
         <div>{profile.display_name}</div>
         <small className="muted">{ROLE[role]}</small>
-        <button className="link" onClick={logout}>Keluar</button>
+        <button className="link" onClick={logout}>Sign out</button>
       </div>
     </aside>
   );
