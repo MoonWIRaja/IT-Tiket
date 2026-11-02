@@ -13,7 +13,7 @@ export default function Home() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return router.replace('/login/');
       const { data } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
-      router.replace(data?.role === 'atasan' ? '/reports/' : '/tickets/');
+      router.replace(data?.role === 'atasan' ? '/reports/' : data?.role === 'karyawan' ? '/tickets/new/' : '/tickets/');
     })();
   }, [router]);
   return <main className="auth"><p className="muted">Loading…</p></main>;

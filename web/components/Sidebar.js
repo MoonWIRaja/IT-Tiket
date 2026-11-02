@@ -19,13 +19,14 @@ export function Sidebar({ profile }) {
   const path = usePathname();
   const { role } = profile;
   const links = [
-    role !== 'atasan' && ['/tickets/', 'Tickets', 'list'],
-    role !== 'atasan' && ['/chats/', 'Chats', 'chat'],
-    role !== 'atasan' && ['/tickets/new/', 'New', 'plus'],
+    isStaff(role) && ['/tickets/', 'Tickets', 'list'],
+    role === 'karyawan' && ['/tickets/new/', 'New ticket', 'plus'],
     role !== 'karyawan' && ['/reports/', 'Reports', 'chart'],
     isStaff(role) && ['/admin/audit/', 'Audit', 'log'],
     role === 'admin' && ['/admin/users/', 'Users', 'users'],
   ].filter(Boolean);
+  // Chats is the main action, so it sits in the middle of the bar.
+  if (role !== 'atasan') links.splice(Math.ceil(links.length / 2), 0, ['/chats/', 'Chats', 'chat']);
   const active = links.map(([h]) => h).filter((h) => path.startsWith(h.slice(0, -1))).sort((a, b) => b.length - a.length)[0];
 
   return (
@@ -38,7 +39,7 @@ export function Sidebar({ profile }) {
         <strong className="brand"><Logo size={26} /></strong>
         <nav>
           {links.map(([href, label, icon]) => (
-            <Link key={href} href={href} className="nav">
+            <Link key={href} href={href} className={`nav ${icon === 'chat' ? 'main' : ''}`}>
               {active === href && <motion.span layoutId="nav" className="nav-on" />}
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICONS[icon]} /></svg>
               <span>{label}</span>

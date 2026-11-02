@@ -67,6 +67,12 @@ export default function Profile() {
           {note && <p className={note.bad ? 'error' : 'ok'}>{note.text}</p>}
           <button className="primary">Save</button>
         </form>
+        <section className="card stack">
+          <strong>Get the app</strong>
+          {['Desktop', 'Android', 'iPhone'].map((name) => (
+            <div key={name} className="row spread"><span>{name}</span><button disabled>Coming soon</button></div>
+          ))}
+        </section>
         <section className="card row spread"><span>Appearance</span><ThemeToggle /></section>
         <button className="danger" onClick={signOut}>Sign out</button>
       </div>

@@ -23,11 +23,11 @@ export default function Audit() {
     <>
       <h1>Audit log</h1>
       {error && <p className="error">{error.message}</p>}
-      <table className="card">
+      <table className="card cards">
         <thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Details</th></tr></thead>
         <tbody>{data?.map((e) => (
-          <tr key={e.id}><td>{when(e.at)}</td><td>{names[e.actor_id] ?? 'System'}</td><td>{e.action}</td>
-            <td>{e.entity}</td><td><code>{JSON.stringify(e.meta)}</code></td></tr>
+          <tr key={e.id}><td data-label="Time">{when(e.at)}</td><td data-label="Actor">{names[e.actor_id] ?? 'System'}</td><td data-label="Action">{e.action}</td>
+            <td data-label="Entity">{e.entity}</td><td data-label="Details"><code>{JSON.stringify(e.meta)}</code></td></tr>
         ))}</tbody>
       </table>
     </>

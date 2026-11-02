@@ -30,7 +30,7 @@ export function ReportView({ rows, error, canRefresh, onRefresh }) {
 
   return (
     <>
-      <header className="row spread">
+      <header className="row spread wrap">
         <h1>Monthly reports</h1>
         <div className="row">
           {canRefresh && <button onClick={refresh}>Recalculate</button>}
@@ -53,9 +53,9 @@ export function ReportView({ rows, error, canRefresh, onRefresh }) {
               <div><motion.i initial={{ width: 0 }} animate={{ width: `${(n / top) * 100}%` }} /></div><b>{n}</b></div>
           ))}
         </div>
-        <table className="card">
+        <table className="card cards even">
           <thead><tr><th>Month</th><th>Opened</th><th>Resolved</th><th>Average</th></tr></thead>
-          <tbody>{rows.map((r) => <tr key={r.month}><td>{month(r.month)}</td><td>{r.opened}</td><td>{r.closed}</td><td>{hours(r.avg_close_hours)}</td></tr>)}</tbody>
+          <tbody>{rows.map((r) => <tr key={r.month}><td>{month(r.month)}</td><td data-label="Opened">{r.opened}</td><td data-label="Resolved">{r.closed}</td><td data-label="Average">{hours(r.avg_close_hours)}</td></tr>)}</tbody>
         </table>
       </>}
     </>

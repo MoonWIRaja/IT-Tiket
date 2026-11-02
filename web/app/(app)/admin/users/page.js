@@ -14,5 +14,5 @@ export default function Users() {
     setUsers(data ?? []);
   }, []);
   useEffect(() => { if (profile.role !== 'admin') router.replace('/'); else load(); }, [profile, router, load]);
-  return <><h1>Pengguna</h1><UsersTable users={users} me={profile.id} onChanged={load} /></>;
+  return <><h1>Users</h1><UsersTable users={users} me={profile.id} onChanged={load} /></>;
 }
