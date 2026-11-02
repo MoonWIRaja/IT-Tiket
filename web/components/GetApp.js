@@ -18,9 +18,19 @@ export function GetApp() {
     window.__installPrompt = null;
   }
 
-  function iphone() {
-    setHint('Allow the download, then open Settings, tap Profile Downloaded and tap Install. The app appears on your Home Screen.');
-    location.assign(`${BASE}/it-tiket.mobileconfig`);
+  async function iphone() {
+    // Profiles only install from Safari; other iPhone browsers show the file as text.
+    if (navigator.brave || /CriOS|FxiOS|EdgiOS|OPiOS/.test(navigator.userAgent)) {
+      await navigator.clipboard?.writeText(location.origin + BASE + '/profile/').catch(() => {});
+      return setHint('This only works in Safari. The link is copied: open Safari, paste it, sign in and press iPhone again.');
+    }
+    // GitHub Pages sends the wrong file type, so set the right one here.
+    const data = await (await fetch(`${BASE}/it-tiket.mobileconfig`)).blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([data], { type: 'application/x-apple-aspen-config' }));
+    a.download = 'it-tiket.mobileconfig';
+    a.click();
+    setHint('Tap Allow, then open Settings, tap Profile Downloaded and tap Install. The app appears on your Home Screen.');
   }
 
   return (
