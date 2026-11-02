@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { go } from '@/lib/base';
 import { ROLE, isStaff } from '@/lib/labels';
 import { ThemeToggle } from './ThemeToggle';
+import { Logo } from './Logo';
 
 export function Sidebar({ profile }) {
   const path = usePathname();
@@ -26,7 +27,7 @@ export function Sidebar({ profile }) {
 
   return (
     <aside className="sidebar">
-      <strong className="brand">IT-Tiket</strong>
+      <strong className="brand"><Logo size={26} /></strong>
       <nav>
         {links.map(([href, label]) => (
           <Link key={href} href={href} className="nav">
