@@ -50,7 +50,6 @@ export default function Profile() {
 
   return (
     <>
-      <h1>Profile</h1>
       <div className="profile-grid">
         <section className="card profile-head">
           <Avatar profile={profile} size={84} />
@@ -69,8 +68,10 @@ export default function Profile() {
           <button className="primary">Save</button>
         </form>
         <GetApp />
-        <section className="card row spread"><span>Appearance</span><ThemeToggle /></section>
-        <button className="danger" onClick={signOut}>Sign out</button>
+        <section className="card stack settings">
+          <div className="row spread"><span>Appearance</span><ThemeToggle /></div>
+          <button className="danger" onClick={signOut}>Sign out</button>
+        </section>
       </div>
     </>
   );

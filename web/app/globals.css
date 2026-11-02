@@ -201,3 +201,21 @@ tbody tr{animation:rise .3s ease-out backwards}tbody tr:nth-child(2){animation-d
 }
 @media(min-width:801px){.profile-grid>.danger{grid-column:3;grid-row:2;align-self:end}}
 @media(max-width:800px){.nav-on,.nav.main .nav-on{top:-22px}.nav.on svg{transform:translateY(-19px)}}
+
+.content .page-head h1,.content>div>h1{display:none}.content .thread h1{display:block}
+.content h1:not(.thread h1){display:none}
+.logo svg{flex:none}
+.profile-grid{align-items:stretch}.profile-grid>.card{margin:0}.settings{align-content:space-between}
+@media(min-width:801px){
+  .sidebar .side-head{flex-direction:row}
+  [data-nav=mini] .side-head{flex-direction:column;gap:12px}
+  [data-nav=mini] .sidebar .brand{display:block;padding:0}
+  [data-nav=mini] .brand .logo{font-size:0;gap:0}
+  [data-nav=mini] .me{display:flex;padding:4px}
+  [data-nav=mini] .me span.avatar{display:inline-grid}
+}
+@media(max-width:800px){
+  .nav-on,.nav.main .nav-on{top:-8px;bottom:2px;left:2px;right:2px;width:auto;height:auto;margin:0;border-radius:18px;box-shadow:0 6px 16px rgb(34 184 230/.4)}
+  .nav svg,.nav.on svg{transform:none}.nav svg{transition:none}
+  .nav{height:52px}.nav.on{color:#fff;transform:translateY(-4px)}
+}

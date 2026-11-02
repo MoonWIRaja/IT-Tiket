@@ -2,9 +2,9 @@
 import { useState } from 'react';
 
 const HINTS = {
-  desktop: 'In Chrome or Edge, open the browser menu and choose Install IT-Tiket.',
-  android: 'In Chrome, open the menu and choose Install app or Add to Home screen.',
-  iphone: 'In Safari, tap Share, then Add to Home Screen.',
+  desktop: 'Your browser did not offer an install. Open this page in Chrome or Edge, then press Desktop again.',
+  android: 'Your browser did not offer an install. Open this page in Chrome on Android, then press Android again.',
+  iphone: 'Apple does not let websites install apps automatically. In Safari, tap Share, then Add to Home Screen.',
 };
 
 export function GetApp() {
