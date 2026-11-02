@@ -14,6 +14,14 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
   const [files, setFiles] = useState(initialFiles);
   const [text, setText] = useState('');
   const [internal, setInternal] = useState(false);
+  const box = useRef(null);
+  // Grows with the text, up to the CSS max-height.
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${el.scrollHeight}px`;
+  }, [text]);
   const [error, setError] = useState(null);
   const end = useRef(null);
   const staff = isStaff(profile.role);
@@ -120,16 +128,19 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
           </div>
           {error && <p className="error">{error}</p>}
           {!started && <p className="chat-wait">IT will start the chat here. You can reply and call once they do. IT can still call you here.</p>}
-          {started && ticket.status !== 'closed' && <form className="composer" onSubmit={send}>
-            <textarea rows={2} maxLength={8000} value={text} placeholder={staff && !messages.length ? 'Start the chat' : 'Write a message'} onChange={(e) => setText(e.target.value)} />
-            <div className="row spread">
-              <div className="row">
-                <label className="file button">Attachments
-                  <input type="file" multiple hidden onChange={attach} /></label>
-                {staff && <label className="check"><input type="checkbox" checked={internal}
-                  onChange={(e) => setInternal(e.target.checked)} /> Internal note</label>}
-              </div>
-              <button className="primary">Send</button>
+          {started && ticket.status !== 'closed' && <form className={`composer ${internal ? 'noting' : ''}`} onSubmit={send}>
+            <textarea ref={box} rows={1} maxLength={8000} value={text} aria-label="Message"
+              placeholder={internal ? 'Write an internal note' : staff && !messages.length ? 'Start the chat' : 'Write a message'}
+              onChange={(e) => setText(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) send(e); }} />
+            <div className="composer-bar">
+              <label className="composer-add" aria-label="Add attachment" title="Add attachment">+
+                <input type="file" multiple hidden onChange={attach} /></label>
+              {staff && <label className="check"><input type="checkbox" checked={internal}
+                onChange={(e) => setInternal(e.target.checked)} /> Internal note</label>}
+              <button className="composer-send" aria-label="Send" disabled={!text.trim()}>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg>
+              </button>
             </div>
           </form>}
         </>}
