@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
-import { notify, startRing } from '@/lib/alerts';
+import { endTone, notify, startRing, startRingback, unlockAudio } from '@/lib/alerts';
 import { BASE } from '@/lib/base';
 
 const ICE = process.env.NEXT_PUBLIC_ICE_SERVERS
@@ -10,17 +11,39 @@ const ICE = process.env.NEXT_PUBLIC_ICE_SERVERS
 
 const HELPER = 'http://127.0.0.1:47615/';
 
+const I = {
+  phone: 'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2z',
+  end: 'M3 15c5-5 13-5 18 0l-2 3-4-2v-3a10 10 0 0 0-6 0v3l-4 2z',
+  cam: 'M3 7h12v10H3zM15 11l6-4v10l-6-4',
+  mic: 'M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3zM5 11a7 7 0 0 0 14 0M12 18v3',
+  flip: 'M4 12a8 8 0 0 1 14-5l2 2V4M20 12a8 8 0 0 1-14 5l-2-2v5',
+  screen: 'M3 5h18v12H3zM8 21h8M12 17v4',
+  mouse: 'M5 3l14 8-6 2-2 6z',
+};
+const Icon = ({ d }) => <svg viewBox="0 0 24 24" aria-hidden="true"><path d={d} /></svg>;
+const Tool = ({ label, d, on, onClick }) => (
+  <button type="button" className={`tool ${on ? 'on' : ''}`} onClick={onClick}><i className="round"><Icon d={d} /></i><small>{label}</small></button>
+);
+const clock = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+
 // 1:1 voice or video call. Signalling uses a Realtime broadcast channel; the call row is the log.
-export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
+export function CallPanel({ supabase, ticketId, profile, canStart, staff, peerName = 'IT Support' }) {
   const [state, setState] = useState('idle'); // idle | ringing | calling | live
   const [error, setError] = useState(null);
   const refs = useRef({ channel: null, pc: null, stream: null, sessionId: null, offer: null, pending: [] });
   const remote = useRef(null);
   const local = useRef(null);
-  const [video, setVideo] = useState(false);
+  const sound = useRef(null);
+  const [mounted, setMounted] = useState(false);
+  const [offerVideo, setOfferVideo] = useState(false);
+  const [remoteVideo, setRemoteVideo] = useState(false);
+  const [localVideo, setLocalVideo] = useState(false);
+  const [small, setSmall] = useState(false);
+  const [seconds, setSeconds] = useState(0);
+  const [soundBlocked, setSoundBlocked] = useState(false);
+  const [touch, setTouch] = useState(false);
   const [muted, setMuted] = useState(false);
   const [camOff, setCamOff] = useState(false);
-  const [remoteOff, setRemoteOff] = useState(false);
   const [swapped, setSwapped] = useState(false);
   const [sharing, setSharing] = useState(false);
   const [control, setControl] = useState('off'); // off | asked | on
@@ -45,10 +68,13 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
     r.facing = 'user';
     Object.assign(r, { pc: null, stream: null, sessionId: null, offer: null, pending: [] });
     setState('idle');
-    setVideo(false);
+    setOfferVideo(false);
+    setRemoteVideo(false);
+    setLocalVideo(false);
+    setSmall(false);
+    setSoundBlocked(false);
     setMuted(false);
     setCamOff(false);
-    setRemoteOff(false);
     setSwapped(false);
     setSharing(false);
     setControl('off');
@@ -59,6 +85,12 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
     const r = refs.current;
     r.stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: withVideo });
     if (local.current) local.current.srcObject = withVideo ? r.stream : null;
+    setLocalVideo(withVideo);
+    setRemoteVideo(withVideo);
+    // Sound has its own element: browsers do not play a hidden video.
+    r.remoteStream = new MediaStream();
+    sound.current.srcObject = r.remoteStream;
+    playSound();
     const pc = new RTCPeerConnection({ iceServers: ICE });
     r.stream.getTracks().forEach((t) => pc.addTrack(t, r.stream));
     // A video slot on voice calls lets screen sharing start without renegotiating.
@@ -69,17 +101,35 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
     r.controlChannel = dc;
     pc.onicecandidate = (e) => e.candidate && send('ice', { candidate: e.candidate });
     pc.ontrack = (e) => {
-      r.remoteStream ??= new MediaStream();
       r.remoteStream.addTrack(e.track);
       remote.current.srcObject = r.remoteStream;
+      playSound();
     };
     pc.onconnectionstatechange = () => { if (pc.connectionState === 'connected') setState('live'); };
     r.pc = pc;
     return pc;
   }
 
+  function playSound() {
+    sound.current?.play().then(() => setSoundBlocked(false)).catch(() => setSoundBlocked(true));
+  }
+
+  useEffect(() => {
+    setMounted(true);
+    setTouch(matchMedia('(pointer: coarse)').matches);
+  }, []);
+
   const ringing = state === 'ringing';
+  const dialing = state === 'calling' && !refs.current.offer;
   useEffect(() => (ringing ? startRing() : undefined), [ringing]);
+  useEffect(() => (dialing ? startRingback() : undefined), [dialing]);
+
+  useEffect(() => {
+    if (state !== 'live') return undefined;
+    setSeconds(0);
+    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [state]);
 
   useEffect(() => {
     const r = refs.current;
@@ -90,7 +140,13 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
       if (supabase.realtime?.setAuth) await supabase.realtime.setAuth();
       if (cancelled) return;
       channel = supabase.channel(`call:${ticketId}`, { config: { private: true, broadcast: { self: false } } })
-      .on('broadcast', { event: 'offer' }, mine((p) => { if (r.pc) return; r.offer = p; setVideo(!!p.video); setState('ringing'); }))
+      .on('broadcast', { event: 'offer' }, mine((p) => {
+        if (r.pc) return;
+        r.offer = p;
+        setOfferVideo(!!p.video);
+        setState('ringing');
+        if (window.__answerTicket === ticketId) { window.__answerTicket = null; accept(); }
+      }))
       .on('broadcast', { event: 'answer' }, mine(async (p) => {
         if (r.pc?.signalingState !== 'have-local-offer') return;
         clearInterval(r.timer);
@@ -102,16 +158,23 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
         if (r.pc?.remoteDescription) await r.pc.addIceCandidate(p.candidate);
         else r.pending.push(p.candidate);
       }))
-      .on('broadcast', { event: 'view' }, mine((p) => { setRemoteOff(!!p.off); if (p.share) setVideo(true); }))
-      .on('broadcast', { event: 'hangup' }, mine(() => cleanup()))
+      .on('broadcast', { event: 'view' }, mine((p) => setRemoteVideo(!!p.video)))
+      .on('broadcast', { event: 'hangup' }, mine(() => { if (r.pc || r.offer) endTone(); cleanup(); }))
       .subscribe((status) => {
         if (status === 'CHANNEL_ERROR') setError('Calls are not allowed for this account.');
       });
       r.channel = channel;
     })();
+    // A decline from the app-wide panel only updates the call row.
+    const ended = supabase.channel(`call-end:${ticketId}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'call_sessions', filter: `ticket_id=eq.${ticketId}` }, ({ new: c }) => {
+        if (c.ended_at && c.id === r.sessionId) { endTone(); cleanup(); }
+      })
+      .subscribe();
     return () => {
       cancelled = true;
       cleanup();
+      supabase.removeChannel(ended);
       if (channel) supabase.removeChannel(channel);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -119,7 +182,7 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
 
   async function start(withVideo) {
     setError(null);
-    setVideo(withVideo);
+    unlockAudio();
     try {
       const { data, error: err } = await supabase.from('call_sessions')
         .insert({ ticket_id: ticketId, started_by: profile.id }).select('id').single();
@@ -139,6 +202,7 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
 
   async function accept() {
     setError(null);
+    unlockAudio();
     const r = refs.current;
     try {
       const { sdp, sessionId, video: withVideo } = r.offer;
@@ -169,13 +233,15 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
         r.stream.addTrack(track);
         if (!r.screen) await videoSender()?.replaceTrack(track);
         if (!r.screen) local.current.srcObject = r.stream;
-        setVideo(true);
-        send('view', { off: false, share: true });
+        setLocalVideo(true);
+        setCamOff(false);
+        send('view', { video: true });
       } catch (e) { setError(e.message); }
       return;
     }
     r.stream.getVideoTracks().forEach((t) => { t.enabled = camOff; });
-    send('view', { off: !camOff });
+    setLocalVideo(camOff);
+    send('view', { video: camOff || !!r.screen });
     setCamOff(!camOff);
   }
 
@@ -202,6 +268,9 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
     stopControl();
     await videoSender()?.replaceTrack(r.stream?.getVideoTracks()[0] ?? null);
     local.current.srcObject = r.stream;
+    const cam = !!r.stream?.getVideoTracks().length && !camOff;
+    setLocalVideo(cam);
+    send('view', { video: cam });
   }
 
   // The browser asks the person which screen to show; nothing starts without that.
@@ -213,9 +282,9 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
       track.onended = stopShare;
       await videoSender()?.replaceTrack(track);
       local.current.srcObject = r.screen;
-      setVideo(true);
+      setLocalVideo(true);
       setSharing(true);
-      send('view', { share: true });
+      send('view', { video: true });
     } catch { r.screen = null; }
   }
 
@@ -224,7 +293,15 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
   // Employee side: IT's input reaches the helper, in order, only after consent.
   function onControl(m) {
     const r = refs.current;
-    if (m.t === 'request') return setControl((c) => (c === 'off' ? 'asked' : c));
+    if (m.t === 'request') {
+      // The helper is Windows only, and phones cannot share a screen.
+      if (!canShare || !/Windows/.test(navigator.userAgent)) return sendControl({ t: 'unsupported' });
+      return setControl((c) => (c === 'off' ? 'asked' : c));
+    }
+    if (m.t === 'unsupported') {
+      setControl('off');
+      return setError('Control only works when the employee joins from a Windows PC.');
+    }
     if (m.t === 'granted') return setControl('on');
     if (m.t === 'stopped') return setControl('off');
     if (!r.helperCode) return;
@@ -288,51 +365,71 @@ export function CallPanel({ supabase, ticketId, profile, canStart, staff }) {
   async function hangup() {
     const id = refs.current.sessionId ?? refs.current.offer?.sessionId;
     send('hangup');
+    endTone();
     cleanup();
     if (id) await supabase.from('call_sessions').update({ ended_at: new Date().toISOString() }).eq('id', id);
   }
 
   const busy = state !== 'idle';
+  const live = state === 'live';
+  const incoming = state === 'ringing';
+  const showRemote = remoteVideo;
+  const showLocal = localVideo && !incoming;
+  const statusText = control === 'on' ? (staff ? 'Controlling PC' : 'IT is controlling your PC')
+    : live ? clock(seconds) : incoming ? `Incoming ${offerVideo ? 'video ' : ''}call` : 'Calling…';
+  const stage = (
+    <div className={`call-stage ${busy ? 'open' : ''} ${showRemote ? 'video' : ''} ${swapped ? 'swapped' : ''} ${controlling ? 'controlling' : ''} ${small ? 'small' : ''}`}>
+      <audio ref={sound} autoPlay playsInline />
+      <video ref={remote} autoPlay playsInline muted className="remote" {...controlProps} />
+      <video ref={local} autoPlay playsInline muted className={`local ${showLocal ? 'shown' : ''}`} onClick={() => setSwapped(!swapped)} />
+      {!showRemote && !small && <div className="call-who">
+        <span className={`call-photo ${incoming ? 'pulse' : ''}`}>{peerName.trim()[0]?.toUpperCase()}</span>
+      </div>}
+      <header className="call-top">
+        {!incoming && <button className="call-min" aria-label={small ? 'Expand call' : 'Minimize call'} onClick={() => setSmall(!small)}>{small ? '⌃' : '⌄'}</button>}
+        <div className="call-title"><strong>{peerName}</strong><span>{statusText}{muted ? ' · Muted' : ''}</span></div>
+      </header>
+      {soundBlocked && <button className="call-sound" onClick={playSound}>Tap to turn on sound</button>}
+      {error && busy && <p className="call-note">{error}</p>}
+      {!staff && control === 'asked' && <form className="control-ask" onSubmit={allowControl}>
+        <strong>IT is asking to control this PC</strong>
+        <ol>
+          <li>{sharing ? 'Screen shared' : <button type="button" className="link" onClick={startShare}>Share your entire screen</button>}</li>
+          <li><a href={`${BASE}/it-tiket-remote.cmd`} download>Download the helper</a> and run it</li>
+          <li>Enter the 8-character code it shows</li>
+        </ol>
+        <label>Helper code<input value={code} maxLength={8} autoComplete="off" onChange={(e) => setCode(e.target.value)} /></label>
+        <span className="row">
+          <button className="primary" disabled={code.trim().length !== 8}>Allow</button>
+          <button type="button" onClick={() => { setControl('off'); setCode(''); sendControl({ t: 'stopped' }); }}>Decline</button>
+        </span>
+      </form>}
+      {incoming
+        ? <div className="call-actions answer">
+            <button className="round red" aria-label="Decline" onClick={hangup}><Icon d={I.end} /></button>
+            <motion.button className="round green" aria-label="Answer" onClick={accept} animate={{ scale: [1, 1.1, 1] }} transition={{ repeat: Infinity, duration: 1.2 }}><Icon d={I.phone} /></motion.button>
+          </div>
+        : <div className="call-actions">
+            <Tool on={muted} label={muted ? 'Unmute' : 'Mute'} d={I.mic} onClick={toggleMute} />
+            <Tool on={!localVideo} label={localVideo ? 'Camera off' : 'Camera on'} d={I.cam} onClick={toggleCamera} />
+            {touch && localVideo && !sharing && <Tool label="Flip" d={I.flip} onClick={switchCamera} />}
+            {canShare && <Tool on={sharing} label={sharing ? 'Stop sharing' : 'Share'} d={I.screen} onClick={sharing ? stopShare : startShare} />}
+            {staff && live && control === 'off' && <Tool label="Control" d={I.mouse} onClick={() => { setControl('asked'); sendControl({ t: 'request' }); }} />}
+            {staff && control === 'asked' && <span className="call-wait">Waiting for permission…</span>}
+            {!staff && control === 'on' && <Tool on label="Stop control" d={I.mouse} onClick={stopControl} />}
+            <button className="round red" aria-label="End call" onClick={hangup}><Icon d={I.end} /></button>
+          </div>}
+    </div>
+  );
+
   return (
     <>
       {canStart && !busy && <div className="row call-buttons">
-        <button onClick={() => start(false)}>Call</button>
-        <button onClick={() => start(true)}>Video</button>
+        <button aria-label="Voice call" onClick={() => start(false)}><Icon d={I.phone} /></button>
+        <button aria-label="Video call" onClick={() => start(true)}><Icon d={I.cam} /></button>
       </div>}
-      {error && <p className="error">{error}</p>}
-      <div className={`call-stage ${busy ? 'open' : ''} ${video ? 'video' : ''} ${swapped ? 'swapped' : ''} ${controlling ? 'controlling' : ''}`}>
-        <video ref={remote} autoPlay playsInline className="remote" {...controlProps} />
-        <video ref={local} autoPlay playsInline muted className="local" onClick={() => setSwapped(!swapped)} />
-        {remoteOff && <p className="cam-off">Camera off</p>}
-        {!staff && control === 'asked' && <form className="control-ask" onSubmit={allowControl}>
-          <strong>IT is asking to control your PC</strong>
-          <span>1. Share your entire screen. 2. <a href={`${BASE}/it-tiket-remote.cmd`} download>Download the helper</a> and run it (Windows). 3. Enter its code. Close the helper at any time to stop.</span>
-          <span className="row">
-            <input aria-label="Helper code" value={code} maxLength={8} autoComplete="off" onChange={(e) => setCode(e.target.value)} />
-            <button className="primary" disabled={code.trim().length !== 8}>Allow</button>
-            <button type="button" onClick={() => { setControl('off'); setCode(''); sendControl({ t: 'stopped' }); }}>Decline</button>
-          </span>
-        </form>}
-        <div className="call-bar">
-          <span>{control === 'on' ? (staff ? 'Controlling PC' : 'IT is controlling your PC') : state === 'live' ? 'In call' : state === 'ringing' ? `Incoming ${video ? 'video ' : ''}call` : 'Calling…'}</span>
-          {state === 'ringing'
-            ? <motion.div className="row" animate={{ scale: [1, 1.04, 1] }} transition={{ repeat: Infinity, duration: 1.2 }}>
-                <button className="primary" onClick={accept}>Answer</button>
-                <button onClick={hangup}>Decline</button>
-              </motion.div>
-            : <div className="row call-tools">
-                <button onClick={toggleMute}>{muted ? 'Unmute' : 'Mute'}</button>
-                <button onClick={toggleCamera}>{video && !camOff ? 'Camera off' : 'Camera on'}</button>
-                {video && !sharing && <button onClick={switchCamera}>Flip</button>}
-                {video && <button onClick={() => setSwapped(!swapped)}>Swap</button>}
-                {canShare && <button onClick={sharing ? stopShare : startShare}>{sharing ? 'Stop sharing' : 'Share screen'}</button>}
-                {staff && state === 'live' && control === 'off' && <button onClick={() => { setControl('asked'); sendControl({ t: 'request' }); }}>Request control</button>}
-                {staff && control === 'asked' && <span>Waiting for permission…</span>}
-                {!staff && control === 'on' && <button className="danger" onClick={stopControl}>Stop control</button>}
-                <button className="danger" onClick={hangup}>End</button>
-              </div>}
-        </div>
-      </div>
+      {error && !busy && <p className="error">{error}</p>}
+      {mounted && createPortal(stage, document.body)}
     </>
   );
 }

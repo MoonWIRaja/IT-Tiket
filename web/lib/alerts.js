@@ -25,6 +25,24 @@ export const notify = (supabase, type, id) =>
 // Two-tone ring. Browsers unlock audio after the person's first tap on the page.
 let audio;
 export const unlockAudio = () => { audio ??= new AudioContext(); audio.resume(); };
+const tone = (freq, length, volume = 0.12) => {
+  if (audio?.state !== 'running') return;
+  const osc = audio.createOscillator();
+  const gain = audio.createGain();
+  gain.gain.value = volume;
+  osc.frequency.value = freq;
+  osc.connect(gain).connect(audio.destination);
+  osc.start();
+  osc.stop(audio.currentTime + length);
+};
+// What the caller hears while it rings on the other side.
+export function startRingback() {
+  tone(425, 1);
+  const timer = setInterval(() => tone(425, 1), 3000);
+  return () => clearInterval(timer);
+}
+export const endTone = () => tone(480, 0.25);
+
 export function startRing() {
   const beep = () => {
     if (!audio || audio.state !== 'running') return;

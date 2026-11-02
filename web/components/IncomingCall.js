@@ -57,12 +57,27 @@ export function IncomingCall({ profile }) {
     return () => { supabase.removeChannel(channel); };
   }, [profile.id]);
 
+  function open() {
+    unlockAudio();
+    // The ticket page answers as soon as the call offer reaches it.
+    if (call.started_by) window.__answerTicket = call.ticket_id;
+    router.push(`/tickets/view/?id=${call.ticket_id}`);
+    setCall(null);
+  }
+
+  async function decline() {
+    const { id } = call;
+    setCall(null);
+    await createClient().from('call_sessions').update({ ended_at: new Date().toISOString() }).eq('id', id);
+  }
+
   if (!call) return null;
   return (
     <motion.div className="incoming" initial={{ y: -40, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
       <span>{call.label}</span>
-      <button className="primary" onClick={() => { router.push(`/tickets/view/?id=${call.ticket_id}`); setCall(null); }}>Open</button>
-      <button onClick={() => setCall(null)}>Dismiss</button>
+      {call.started_by && <button className="danger" onClick={decline}>Decline</button>}
+      <button className="primary" onClick={open}>{call.started_by ? 'Answer' : 'Open'}</button>
+      {!call.started_by && <button onClick={() => setCall(null)}>Dismiss</button>}
     </motion.div>
   );
 }

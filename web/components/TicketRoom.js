@@ -101,7 +101,7 @@ export function TicketRoom({ profile, initialTicket, initialMessages, initialFil
           <small className="muted">{ticketNo(ticket.number)} · {ticket.category}</small>
           <div className="row spread">
             <h1>{ticket.title}</h1>
-            {ticket.status !== 'closed' && <CallPanel supabase={supabase} ticketId={ticket.id} profile={profile} canStart={staff || chatStarted} staff={staff} />}
+            {ticket.status !== 'closed' && <CallPanel peerName={staff ? names[ticket.requester_id] ?? 'Employee' : 'IT Support'} supabase={supabase} ticketId={ticket.id} profile={profile} canStart={staff || chatStarted} staff={staff} />}
           </div>
           <p className="prewrap">{ticket.body}</p>
         </header>
