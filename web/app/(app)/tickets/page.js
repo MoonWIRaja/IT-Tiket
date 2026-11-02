@@ -1,6 +1,7 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { RowList } from '@/components/RowList';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useProfile } from '@/components/AppGate';
@@ -41,7 +42,9 @@ export default function Tickets() {
         <button>Filter</button>
       </form>
       {error && <p className="error">{error.message}</p>}
-      <table className="card cards">
+      <RowList items={tickets ?? []} id={(t) => t.id} href={(t) => `/tickets/view/?id=${t.id}`} title={(t) => t.title}
+        sub={(t) => `${ticketNo(t.number)} · ${t.category}`} badge={(t) => <span className={`pill s-${t.status}`}>{STATUS[t.status]}</span>} />
+      <table className="card desk-only">
         <thead><tr><th>No.</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Updated</th></tr></thead>
         <tbody>
           {tickets?.map((t) => (

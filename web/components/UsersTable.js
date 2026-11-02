@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { ROLE } from '@/lib/labels';
+import { RowList, Fact } from '@/components/RowList';
 import { createClient } from '@/lib/supabase/client';
 
 export function UsersTable({ users, me, onChanged }) {
@@ -13,7 +14,15 @@ export function UsersTable({ users, me, onChanged }) {
   return (
     <>
       {error && <p className="error">{error}</p>}
-      <table className="card cards">
+      <RowList items={users} id={(u) => u.id} title={(u) => u.display_name} sub={(u) => u.email}
+        badge={(u) => <span className="pill">{ROLE[u.role]}</span>}
+        detail={(u) => <>
+          <Fact label="Email">{u.email}</Fact>
+          <label>Role<select value={u.role} onChange={async (e) => setError(await setRole(u.id, e.target.value))}>
+            {Object.entries(ROLE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+          <button disabled={u.id === me} onClick={async () => setError(await setActive(u.id, !u.active))}>{u.active ? 'Deactivate' : 'Activate'}</button>
+        </>} />
+      <table className="card desk-only">
         <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th></tr></thead>
         <tbody>{users.map((u) => (
           <tr key={u.id}>

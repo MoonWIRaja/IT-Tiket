@@ -41,7 +41,7 @@ export function Sidebar({ profile }) {
         <strong className="brand"><Logo size={26} /></strong>
         <nav>
           {links.map(([href, label, icon]) => (
-            <Link key={href} href={href} className={`nav ${icon === 'chat' ? 'main' : ''} ${icon === 'user' ? 'mobile-only' : ''}`}>
+            <Link key={href} href={href} className={`nav ${icon === 'chat' ? 'main' : ''} ${active === href ? 'on' : ''} ${icon === 'user' ? 'mobile-only' : ''}`}>
               {active === href && <motion.span layoutId="nav" className="nav-on" />}
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d={ICONS[icon]} /></svg>
               <span>{label}</span>
