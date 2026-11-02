@@ -31,7 +31,7 @@ export function ReportView({ rows, error, canRefresh, onRefresh }) {
 
   return (
     <>
-      <header className="row spread wrap">
+      <header className="row spread wrap page-head">
         <h1>Monthly reports</h1>
         <div className="row">
           {canRefresh && <button onClick={refresh}>Recalculate</button>}
@@ -39,7 +39,7 @@ export function ReportView({ rows, error, canRefresh, onRefresh }) {
         </div>
       </header>
       {note && <p className="error">{note}</p>}
-      {!latest ? <p className="card muted">No report data yet.</p> : <>
+      {!latest ? <p className="card muted">No report data yet. Figures appear here after tickets are created.</p> : <>
         <div className="tiles">
           {[['Opened', latest.opened], ['Resolved', latest.closed], ['Average resolution', hours(latest.avg_close_hours)]].map(([k, v]) => (
             <motion.div key={k} className="card tile" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>

@@ -191,3 +191,11 @@ tbody tr{animation:rise .3s ease-out backwards}tbody tr:nth-child(2){animation-d
   .nav.on{font-weight:600}
 }
 .rows:empty{display:none}
+@media(max-width:800px){
+  .nav-on,.nav.main .nav-on{top:-16px;width:42px;height:42px;margin-left:-21px;box-shadow:0 0 0 3px var(--bg),0 6px 14px rgb(34 184 230/.35)}
+  .nav.on svg{transform:translateY(-13px)}
+  .nav-label{position:relative}
+  .content h1{display:none}.content .thread h1{display:block}
+  .page-head{justify-content:flex-end}
+  .page-head>.row{width:100%}.page-head>.row button{flex:1;padding:8px 10px;font-size:14px}
+}
