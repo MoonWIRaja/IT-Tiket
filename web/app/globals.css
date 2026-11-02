@@ -145,3 +145,6 @@ tbody tr{animation:rise .3s ease-out backwards}tbody tr:nth-child(2){animation-d
   .tiles{grid-template-columns:repeat(2,1fr)}.tile:last-child{grid-column:1/-1}.tile b{font-size:24px}
   .bar{grid-template-columns:96px 1fr 28px}
 }
+
+.nav.mobile-only{display:none}
+@media(max-width:800px){.nav.mobile-only{display:flex}}
