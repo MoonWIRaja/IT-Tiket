@@ -10,9 +10,34 @@ export default function SetupPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    fetch('/api/setup').then((r) => r.json()).then((d) => setState(d.available ? 'available' : 'closed'))
-      .catch(() => setState('error'));
+    let dead = false;
+    (async () => {
+      try {
+        const status = await fetch('/api/setup').then((r) => r.json());
+        if (dead) return;
+        if (!status.available) { setState('closed'); return; }
+        const { data: { session } } = await createClient().auth.getSession();
+        if (dead) return;
+        setState(session ? 'confirm' : 'available');
+      } catch {
+        if (!dead) setState('error');
+      }
+    })();
+    return () => { dead = true; };
   }, []);
+
+  async function finish() {
+    setBusy(true); setNote('');
+    const result = await fetch('/api/setup', { method: 'POST' });
+    const payload = await result.json().catch(() => ({}));
+    setBusy(false);
+    if (!result.ok) {
+      setNote(payload.error || 'Setup tidak berjaya.');
+      if (result.status === 409) setState('closed');
+      return;
+    }
+    location.assign('/');
+  }
 
   async function submit(e) {
     e.preventDefault();
@@ -36,6 +61,11 @@ export default function SetupPage() {
     {state === 'loading' && <p className="muted">Memeriksa status setup…</p>}
     {state === 'closed' && <><p>Setup pertama sudah selesai. Sila log masuk.</p><a href="/login">Ke halaman log masuk</a></>}
     {state === 'error' && <p className="error">Tidak dapat menyemak status setup. Cuba lagi kemudian.</p>}
+    {state === 'confirm' && <>
+      <p>Akaun ini sudah log masuk. Sahkan untuk menjadikannya admin pertama. Selepas itu wizard ditutup.</p>
+      {note && <p className="error">{note}</p>}
+      <button className="primary" disabled={busy} onClick={finish}>{busy ? 'Sedang menyediakan…' : 'Jadikan admin pertama'}</button>
+    </>}
     {state === 'available' && <>
       <p className="muted">Cipta akaun pemilik pertama. Akaun ini akan menjadi admin selepas pengesahan email jika diperlukan.</p>
       <form className="stack" onSubmit={submit}>

@@ -38,7 +38,12 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
   useEffect(() => {
     const r = refs.current;
     const mine = (fn) => ({ payload }) => { if (payload.from !== profile.id) fn(payload); };
-    const channel = supabase.channel(`call:${ticketId}`, { config: { broadcast: { self: false } } })
+    let channel;
+    let cancelled = false;
+    (async () => {
+      if (supabase.realtime?.setAuth) await supabase.realtime.setAuth();
+      if (cancelled) return;
+      channel = supabase.channel(`call:${ticketId}`, { config: { private: true, broadcast: { self: false } } })
       .on('broadcast', { event: 'offer' }, mine((p) => { r.offer = p; setState('ringing'); }))
       .on('broadcast', { event: 'answer' }, mine(async (p) => {
         await r.pc?.setRemoteDescription(p.sdp);
@@ -49,9 +54,16 @@ export function CallPanel({ supabase, ticketId, profile, disabled }) {
         else r.pending.push(p.candidate);
       }))
       .on('broadcast', { event: 'hangup' }, mine(() => cleanup()))
-      .subscribe();
-    r.channel = channel;
-    return () => { cleanup(); supabase.removeChannel(channel); };
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR') setError('Panggilan tidak dibenarkan untuk akaun ini.');
+      });
+      r.channel = channel;
+    })();
+    return () => {
+      cancelled = true;
+      cleanup();
+      if (channel) supabase.removeChannel(channel);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supabase, ticketId, profile.id]);
 

@@ -6,5 +6,6 @@ export async function GET(request) {
   const code = url.searchParams.get('code');
   if (code) await (await createClient()).auth.exchangeCodeForSession(code);
   const next = url.searchParams.get('next');
-  return NextResponse.redirect(new URL(next?.startsWith('/') && !next.startsWith('//') ? next : '/', url.origin));
+  const safe = next === '/' || next === '/setup' ? next : '/';
+  return NextResponse.redirect(new URL(safe, url.origin));
 }
