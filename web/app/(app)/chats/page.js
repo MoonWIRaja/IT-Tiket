@@ -37,7 +37,8 @@ export default function Chats() {
       <div className="chat-list">
         {rows?.map((t) => (
           <Link key={t.id} href={`/tickets/view/?id=${t.id}`} className="card chat-row">
-            <span>
+            <span className="avatar chat-av">{t.title.trim()[0]?.toUpperCase()}</span>
+            <span className="chat-text">
               <b>{t.title}</b>
               <small className="muted">{ticketNo(t.number)} · {t.last ? t.last.body.slice(0, 90) : 'Not started'}</small>
             </span>
